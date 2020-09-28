@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 
 List<int> getNumbers(String str) {
@@ -12,7 +13,9 @@ List<int> getNumbers(String str) {
 }
 
 String getName(String str) {
-  return RegExp(r"Name=([a-zA-Z]+)", multiLine: true).firstMatch(str).group(1);
+  return RegExp(r"Name=([a-zA-Z\ \dÀ-ÿ\u00f1\u00d1]+)", multiLine: true)
+      .firstMatch(str)
+      .group(1);
 }
 
 List<String> getTypes(String str) {
@@ -124,23 +127,38 @@ List<List> getEvolutions(String str) {
   return ev;
 }
 
-Pokemon getPokemon(String str) {
+Future<Uint8List> getIconbytes(String gameFolder, int number) async {
+  File iconFile = File(gameFolder +
+      "/Graphics/Icons/icon${number.toString().padLeft(3, '0')}.png");
+  var bytes;
+  try {
+    bytes = await iconFile.readAsBytes();
+  } catch (Exception) {
+    bytes =
+        await File(gameFolder + "/Graphics/Icons/icon000.png").readAsBytes();
+    print("No existe icono $number");
+  }
+
+  return bytes;
+}
+
+Pokemon getPokemon(String pkmStr) {
   Pokemon p = Pokemon();
-  List<String> data = LineSplitter().convert(str);
+  List<String> data = LineSplitter().convert(pkmStr);
   p.number = getNumbers(data[0])[0];
-  p.name = getName(str);
-  p.types = getTypes(str);
-  p.stats = getStats(str);
-  p.evs = getEvs(str);
-  p.happines = getHappiness(str);
-  p.abilities = getAbilities(str);
-  p.hiddenAbi = getHiddenAbi(str);
-  p.moves = getMoves(str);
-  p.eggMoves = getEggMoves(str);
-  p.compability = getCompatibility(str);
-  p.stepsToHatch = getSteps(str);
-  p.pokedex = getPokedex(str);
-  p.evolutions = getEvolutions(str);
+  p.name = getName(pkmStr);
+  p.types = getTypes(pkmStr);
+  p.stats = getStats(pkmStr);
+  p.evs = getEvs(pkmStr);
+  p.happines = getHappiness(pkmStr);
+  p.abilities = getAbilities(pkmStr);
+  p.hiddenAbi = getHiddenAbi(pkmStr);
+  p.moves = getMoves(pkmStr);
+  p.eggMoves = getEggMoves(pkmStr);
+  p.compability = getCompatibility(pkmStr);
+  p.stepsToHatch = getSteps(pkmStr);
+  p.pokedex = getPokedex(pkmStr);
+  p.evolutions = getEvolutions(pkmStr);
   return p;
 }
 
@@ -149,6 +167,7 @@ class Pokemon {
   String name, hiddenAbi, compability, pokedex;
   List types, abilities, eggMoves;
   List stats, evs;
+  List iconBytes;
   List moves, evolutions;
   static Map colorTypes = {
     "GRASS": Color.fromARGB(255, 120, 200, 80),
@@ -184,6 +203,7 @@ class Pokemon {
     this.eggMoves = json["eggMoves"];
     this.stats = json["stats"];
     this.evs = json["evs"];
+    this.iconBytes = json["iconBytes"];
     this.moves = json["moves"];
     this.evolutions = json["evolutions"];
   }
@@ -209,18 +229,28 @@ class Pokemon {
         "eggMoves": this.eggMoves,
         "stats": this.stats,
         "evs": this.evs,
+        "iconBytes": this.iconBytes,
         "moves": this.moves,
         "evolutions": this.evolutions
       };
-  static Future<List<Pokemon>> readPokemonFile(String path) async {
+  static Future<List<Pokemon>> readPokemonFile(String gameFolder) async {
     List<Pokemon> pkm = [];
-    File f = File(path);
+    File f = File(gameFolder + "/PBS/pokemon.txt");
+    print(f.path);
     var str = await f.readAsString();
     List l = str.split("[");
     l.removeAt(0);
     l.forEach((element) {
       pkm.add(getPokemon(element));
     });
+    return await _addIcons(gameFolder, pkm);
+  }
+
+  static Future<List<Pokemon>> _addIcons(
+      String gameFolder, List<Pokemon> pkm) async {
+    for (int i = 0; i < pkm.length; i++) {
+      pkm[i].iconBytes = await getIconbytes(gameFolder, pkm[i].number);
+    }
     return pkm;
   }
 
@@ -287,6 +317,11 @@ class Pokemon {
     });
     return levels;
   }
+
+  Uint8List getIconBytes() {
+    return Uint8List.fromList(
+        iconBytes.map((e) => int.parse(e.toString())).toList());
+  }
 }
 
 class dataContainer {
@@ -298,7 +333,6 @@ class dataContainer {
 
   static void search(String name) {
     int exist = pkmData.indexWhere((pkm) => pkm.name == name);
-    //print("$name $exist");
     if (exist > -1) {
       selected = exist;
     } else {

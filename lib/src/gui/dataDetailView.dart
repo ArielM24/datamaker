@@ -1,3 +1,6 @@
+import 'dart:ffi';
+import 'dart:typed_data';
+
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,6 +32,19 @@ class _dataDetailViewState extends State<dataDetailView> {
             )),
         body: ListView(children: [
           _makeRoundedContainer(Text("#Número ${pkm.number}")),
+          _makeRoundedContainer(SizedBox(
+              width: 128,
+              child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        alignment: Alignment.centerLeft,
+                        fit: BoxFit.fitHeight,
+                        image: MemoryImage(pkm.getIconBytes()),
+                      ),
+                    ),
+                  )))),
           _makeRoundedContainer(Column(
             children: <Widget>[Text("Tipo(s):")] +
                 _makeListString(pkm.types) +

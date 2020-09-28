@@ -2,9 +2,11 @@ import 'package:DataMaker/src/gui/dataView.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:file_picker_cross/file_picker_cross.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:filesystem_picker/filesystem_picker.dart';
+import 'package:android_path_provider/android_path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 
 class homePage extends StatefulWidget {
@@ -15,7 +17,7 @@ class homePage extends StatefulWidget {
 
 class _homePage extends State<homePage> {
   List<String> _lvItems = [];
-  String dir;
+  String writePath;
   bool started = false;
   @override
   void initState() {
@@ -47,7 +49,7 @@ class _homePage extends State<homePage> {
               heroTag: "a",
               child: Icon(Icons.open_in_browser),
               tooltip: "New",
-              onPressed: _createNew),
+              onPressed: () => _createNew(context)),
           SizedBox(
             width: 10,
           ),
@@ -79,7 +81,6 @@ class _homePage extends State<homePage> {
             children: [
               FlatButton(
                   onPressed: () {
-                    //f.rename(newPath)
                     _renameCard(context, index);
                   },
                   child: Text("Renombrar")),
@@ -119,54 +120,62 @@ class _homePage extends State<homePage> {
     if (l != null) {
       File f = File(_lvItems[index]);
       if (l[0].length > 2) {
-        f.renameSync(dir + "/Data/" + l[0]);
+        f.renameSync(writePath + l[0]);
         setState(() {
-          _lvItems[index] = dir + "/Data/" + l[0];
+          _lvItems[index] = writePath + l[0];
         });
       }
     }
   }
 
-  _createNew() async {
-    var res = await FilePickerCross.importFromStorage(
-        type: FileTypeCross.custom, fileExtension: "txt");
-
-    dir = (await getApplicationDocumentsDirectory()).path;
-    var fpath;
-    if (res != null) {
+  _createNew(BuildContext context) async {
+    var gameFolder;
+    Directory show;
+    if (await (Permission.storage.request()).isGranted) {
+      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+        show = await getDownloadsDirectory();
+      } else {
+        print("android");
+        show = Directory(await AndroidPathProvider.downloadsPath);
+        print("aaaaa");
+      }
+    }
+    print("salida");
+    gameFolder = await FilesystemPicker.open(
+        context: context,
+        rootDirectory: show,
+        fsType: FilesystemType.folder,
+        rootName: "Game folder",
+        pickText: "Select");
+    print(gameFolder);
+    writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+    Directory data = Directory(writePath);
+    if (!(await data.exists())) {
+      await data.create();
+    }
+    var readPath;
+    if (gameFolder != null) {
       try {
-        var pkm = await Pokemon.readPokemonFile(res.path);
-        fpath = dir + "/Data/data${_lvItems.length}";
-        await Pokemon.writePokemonJson(fpath, pkm);
-        //await Pokemon.readPokemonJson(dir + "/Data/data${_lvItems.length}.txt");
+        var pkm = await Pokemon.readPokemonFile(gameFolder);
+        readPath = writePath + "/data${_lvItems.length}";
+        await Pokemon.writePokemonJson(readPath, pkm);
       } catch (ex) {
         print(ex);
         print("ayuda");
       }
       setState(() {
-        _lvItems.add(fpath);
+        _lvItems.add(readPath);
       });
     }
-  }
-
-  _readData() async {
-    Directory d = Directory(dir + "/Data");
-    var l = d.list();
-    l.forEach((element) {
-      print(element.path);
-      setState(() {
-        _lvItems.add(element.path);
-      });
-    });
   }
 
   _refreshData() async {
-    dir = (await getApplicationDocumentsDirectory()).path;
-    Directory d = Directory(dir + "/Data");
-    if (!await (d.exists())) {
-      await d.create();
+    writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+    Directory data = Directory(writePath);
+    if (!await (data.exists())) {
+      await data.create();
     }
-    var l = d.list();
+    var l = data.list();
     l.forEach((element) {
       setState(() {
         if (!_lvItems.contains(element.path)) {

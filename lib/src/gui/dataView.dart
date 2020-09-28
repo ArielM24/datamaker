@@ -69,9 +69,31 @@ class _dataView extends State<dataView> {
         child: Column(
           children: [
             ListTile(
-              leading: Text(
-                "${dataContainer.pkmData[i].number}",
-                style: GoogleFonts.lobster(),
+              leading: SizedBox(
+                width: 120,
+                child: Row(
+                  children: [
+                    Text(
+                      "${dataContainer.pkmData[i].number}",
+                      style: GoogleFonts.lobster(),
+                    ),
+                    SizedBox(width: 30),
+                    SizedBox(
+                      width: 56,
+                      child: AspectRatio(
+                        aspectRatio: 1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  fit: BoxFit.fitHeight,
+                                  alignment: Alignment.centerLeft,
+                                  image: MemoryImage(dataContainer.pkmData[i]
+                                      .getIconBytes()))),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ),
               trailing: SizedBox(
                 width: 120,
@@ -102,27 +124,5 @@ class _dataView extends State<dataView> {
 
   _setData() {
     index = dataContainer.pkmData.length;
-  }
-
-  Widget _makeDetails(Pokemon p) {
-    return ExpansionTile(
-      title: Text("Tipos: ${p.types}\n"
-          "Habilidades : ${p.abilities}\n"
-          "Habilidad oculta: ${p.hiddenAbi}\n"
-          "Stats base: ${p.stats}\n"
-          "Movimientos: ${p.moves}\n"
-          "Movimientos huevo: ${p.eggMoves}\n"),
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Text("Felicidad: ${p.happines}\n"
-              "Pasos para eclocionar ${p.stepsToHatch}\n"
-              "Compatibilidad: ${p.compability}\n"
-              "Evs que suelta: ${p.evs}\n"
-              "Evoluciones: ${p.evolutions}\n"
-              "Pokedex: ${p.pokedex}\n"),
-        )
-      ],
-    );
   }
 }

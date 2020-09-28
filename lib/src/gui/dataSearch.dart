@@ -60,7 +60,30 @@ class dataSearch extends SearchDelegate {
                   end: Alignment.bottomCenter,
                   colors: dataContainer.selection().getColors())),
           child: ListTile(
-            leading: Icon(Icons.data_usage),
+            leading: SizedBox(
+                width: 120,
+                child: Row(
+                  children: [
+                    Icon(Icons.data_usage),
+                    SizedBox(
+                      width: 30,
+                    ),
+                    SizedBox(
+                        width: 56,
+                        child: AspectRatio(
+                          aspectRatio: 1,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  fit: BoxFit.fitHeight,
+                                  alignment: Alignment.centerLeft,
+                                  image:
+                                      MemoryImage(results[i].getIconBytes())),
+                            ),
+                          ),
+                        ))
+                  ],
+                )),
             title: Text(results[i].name),
             trailing: SizedBox(
                 width: 120,
