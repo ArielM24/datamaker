@@ -8,6 +8,7 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
+import 'package:path_provider_windows/path_provider_windows.dart' as wp;
 
 class homePage extends StatefulWidget {
   homePage({Key key}) : super(key: key);
@@ -64,6 +65,12 @@ class _homePage extends State<homePage> {
   }
 
   Widget _makeCard(int index) {
+  	String name;
+  	if(Platform.isWindows){
+  		name = _lvItems[index].split("\\").last;
+  	}else{
+  		name = _lvItems[index].split("/").last;
+  	}
     return Card(
       child: Column(
         children: [
@@ -72,7 +79,7 @@ class _homePage extends State<homePage> {
               Icons.insert_drive_file,
               color: Colors.blue,
             ),
-            title: Text("${_lvItems[index].split("/").last}"),
+            title: Text("$name"),
             onTap: () {
               _openCard(context, _lvItems[index]);
             },
@@ -131,15 +138,15 @@ class _homePage extends State<homePage> {
   _createNew(BuildContext context) async {
     var gameFolder;
     Directory show;
-    if (await (Permission.storage.request()).isGranted) {
-      if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
-        show = await getDownloadsDirectory();
-      } else {
-        print("android");
-        show = Directory(await AndroidPathProvider.downloadsPath);
-        print("aaaaa");
-      }
-    }
+	if(Platform.isAndroid){
+	    if (await (Permission.storage.request()).isGranted) {
+	    	show = Directory(await AndroidPathProvider.downloadsPath);
+	    }
+	}else if(Platform.isWindows){
+		show = Directory("C:\\Users\\ariel\\Downloads\\");
+	}else{
+		show = await getDownloadsDirectory();
+	}
     print("salida");
     gameFolder = await FilesystemPicker.open(
         context: context,
@@ -148,7 +155,12 @@ class _homePage extends State<homePage> {
         rootName: "Game folder",
         pickText: "Select");
     print(gameFolder);
-    writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+    if(Platform.isWindows){
+    	String user = Platform.environment["UserProfile"];
+   		writePath = ("$user\\Documents\\Data\\");
+    }else{
+    	writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+    }
     Directory data = Directory(writePath);
     if (!(await data.exists())) {
       await data.create();
@@ -170,7 +182,12 @@ class _homePage extends State<homePage> {
   }
 
   _refreshData() async {
-    writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+  	if(!Platform.isWindows){
+    	writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+  	}else{
+  		String user = Platform.environment["UserProfile"];
+   		writePath = ("$user\\Documents\\Data\\");
+  	}
     Directory data = Directory(writePath);
     if (!await (data.exists())) {
       await data.create();

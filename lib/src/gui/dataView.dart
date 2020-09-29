@@ -3,6 +3,8 @@ import 'package:DataMaker/src/gui/dataSearch.dart';
 import 'package:flutter/material.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
+
 
 class dataView extends StatefulWidget {
   String path;
@@ -26,9 +28,15 @@ class _dataView extends State<dataView> {
 
   @override
   Widget build(BuildContext context) {
+    String name;
+    if(Platform.isWindows){
+      name = path.split("\\").last;
+    }else{
+      name = path.split("/").last;
+    }
     return Scaffold(
         appBar: AppBar(
-          title: Text("${path.split("/").last}"),
+          title: Text("$name"),
           leading: IconButton(
             icon: Image.asset("assets/pokemon-go.png"),
             onPressed: () {
