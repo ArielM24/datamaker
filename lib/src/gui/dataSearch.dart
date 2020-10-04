@@ -7,7 +7,6 @@ class dataSearch extends SearchDelegate {
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    // TODO: implement buildActions
     return [
       IconButton(
           icon: Icon(Icons.clear),
@@ -19,7 +18,6 @@ class dataSearch extends SearchDelegate {
 
   @override
   Widget buildLeading(BuildContext context) {
-    // TODO: implement buildLeading
     return IconButton(
         icon: AnimatedIcon(
           icon: AnimatedIcons.menu_arrow,
@@ -32,13 +30,11 @@ class dataSearch extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    // TODO: implement buildResults
     return dataDetailView();
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    // TODO: implement buildSuggestions
     List results = (query.isEmpty)
         ? []
         : dataContainer.pkmData

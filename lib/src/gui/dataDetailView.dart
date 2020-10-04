@@ -1,9 +1,6 @@
-import 'dart:ffi';
-import 'dart:typed_data';
-
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class dataDetailView extends StatefulWidget {
   dataDetailView({Key key}) : super(key: key);
@@ -83,6 +80,11 @@ class _dataDetailViewState extends State<dataDetailView> {
                     color: Colors.white,
                   ),
                   children: _movesRows(pkm.moves)),
+              Text("TMs"),
+              Table(
+                border: TableBorder.all(color: Colors.white),
+                children: [],
+              ),
               Text("Huevo:"),
               Table(
                   border: TableBorder.all(color: Colors.white),
@@ -122,10 +124,39 @@ class _dataDetailViewState extends State<dataDetailView> {
 
   List<TableRow> _movesRows(List moves) {
     var rows = <TableRow>[];
+
     moves.forEach((move) {
-      rows.add(TableRow(children: _makeListString(move)));
+      int index = move.length > 1 ? 1 : 0;
+      rows.add(TableRow(
+          children: _makeListString(move)
+              .map((e) => GestureDetector(
+                    child: Padding(
+                      padding: EdgeInsets.all(5),
+                      child: e,
+                    ),
+                    onTap: () {
+                      showAlertDialog(
+                          context: context,
+                          message:
+                              _moveStr(dataContainer.pkmMoves[move[index]]));
+                    },
+                  ))
+              .toList()));
     });
     return rows;
+  }
+
+  String _moveStr(List move) {
+    String str = "${move[1]}\n"
+        "Potencia: ${move[2] == '0' ? '-' : move[2]}\n"
+        "Tipo: ${move[3]}\n"
+        "Categoría: ${move[4]}\n"
+        "Presición: ${move[5] == '0' ? '-' : move[5]}\n"
+        "PPs: ${move[6]}\n"
+        "Probabilidad de efecto: ${move[7] == '0' ? '-' : move[7]}\n"
+        "Descripción: ${move[8]}\n";
+
+    return str;
   }
 
   List<Widget> _makeListString(List str) {
@@ -158,10 +189,14 @@ class _dataDetailViewState extends State<dataDetailView> {
           title: Text(pkm.evolutions[i][0]),
           subtitle: Text("${pkm.evolutions[i][1]} ${pkm.evolutions[i][2]}"),
           onTap: () {
-            print("${pkm.evolutions[i][0]}");
             String name = pkm.evolutions[i][0];
-            dataContainer
-                .search("${name[0]}${name.substring(1).toLowerCase()}");
+            if (name == "PORYGONZ") {
+              name = "Porygon-Z";
+              dataContainer.search(name);
+            } else {
+              dataContainer
+                  .search("${name[0]}${name.substring(1).toLowerCase()}");
+            }
             Navigator.push(context,
                 MaterialPageRoute(builder: (context) => dataDetailView()));
           },

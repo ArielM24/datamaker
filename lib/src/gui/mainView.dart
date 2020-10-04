@@ -8,7 +8,6 @@ import 'package:filesystem_picker/filesystem_picker.dart';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
-import 'package:path_provider_windows/path_provider_windows.dart' as wp;
 
 class homePage extends StatefulWidget {
   homePage({Key key}) : super(key: key);
@@ -65,12 +64,12 @@ class _homePage extends State<homePage> {
   }
 
   Widget _makeCard(int index) {
-  	String name;
-  	if(Platform.isWindows){
-  		name = _lvItems[index].split("\\").last;
-  	}else{
-  		name = _lvItems[index].split("/").last;
-  	}
+    String name;
+    if (Platform.isWindows) {
+      name = _lvItems[index].split("\\").last;
+    } else {
+      name = _lvItems[index].split("/").last;
+    }
     return Card(
       child: Column(
         children: [
@@ -109,7 +108,6 @@ class _homePage extends State<homePage> {
   _deleteCard(BuildContext context, int index) async {
     var r =
         await showOkCancelAlertDialog(context: context, message: "¿Borrar?");
-    print(r.index);
     if (r.index == 0) {
       setState(() {
         File f = File(_lvItems[index]);
@@ -136,58 +134,74 @@ class _homePage extends State<homePage> {
   }
 
   _createNew(BuildContext context) async {
+    String user = Platform.environment["UserProfile"];
+    String gameFolder = await _pickDirectory(context, user);
+    print(gameFolder);
+    if (Platform.isWindows) {
+      writePath = ("$user\\Documents\\Data\\");
+    } else {
+      writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+    }
+    Directory data = Directory(writePath);
+    if (!(await data.exists())) {
+      await data.create();
+    }
+
+    if (gameFolder != null) {
+      _writeGameData(gameFolder);
+    }
+  }
+
+  _writeGameData(gameFolder) async {
+    var readPath;
+    try {
+      var pkm = await Pokemon.readPokemonFile(gameFolder);
+      var moves = await Pokemon.readMoves(gameFolder);
+      String name;
+      if (Platform.isWindows) {
+        name = gameFolder.split("\\").last;
+      } else {
+        name = gameFolder.split("/").last;
+      }
+      readPath = writePath + "/$name";
+      await Pokemon.writePokemonJson(readPath, pkm, moves);
+    } catch (ex) {
+      print(ex);
+      print("ayuda");
+    }
+    setState(() {
+      _lvItems.add(readPath);
+    });
+  }
+
+  Future<String> _pickDirectory(BuildContext context, String user) async {
     var gameFolder;
     Directory show;
-	if(Platform.isAndroid){
-	    if (await (Permission.storage.request()).isGranted) {
-	    	show = Directory(await AndroidPathProvider.downloadsPath);
-	    }
-	}else if(Platform.isWindows){
-		show = Directory("C:\\Users\\ariel\\Downloads\\");
-	}else{
-		show = await getDownloadsDirectory();
-	}
-    print("salida");
+    if (Platform.isAndroid) {
+      if (await (Permission.storage.request()).isGranted) {
+        show = Directory(await AndroidPathProvider.downloadsPath);
+      }
+    } else if (Platform.isWindows) {
+      show = Directory("$user\\Downloads\\");
+    } else {
+      show = await getDownloadsDirectory();
+    }
     gameFolder = await FilesystemPicker.open(
         context: context,
         rootDirectory: show,
         fsType: FilesystemType.folder,
         rootName: "Game folder",
         pickText: "Select");
-    print(gameFolder);
-    if(Platform.isWindows){
-    	String user = Platform.environment["UserProfile"];
-   		writePath = ("$user\\Documents\\Data\\");
-    }else{
-    	writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
-    }
-    Directory data = Directory(writePath);
-    if (!(await data.exists())) {
-      await data.create();
-    }
-    var readPath;
-    if (gameFolder != null) {
-      try {
-        var pkm = await Pokemon.readPokemonFile(gameFolder);
-        readPath = writePath + "/data${_lvItems.length}";
-        await Pokemon.writePokemonJson(readPath, pkm);
-      } catch (ex) {
-        print(ex);
-        print("ayuda");
-      }
-      setState(() {
-        _lvItems.add(readPath);
-      });
-    }
+    return gameFolder;
   }
 
   _refreshData() async {
-  	if(!Platform.isWindows){
-    	writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
-  	}else{
-  		String user = Platform.environment["UserProfile"];
-   		writePath = ("$user\\Documents\\Data\\");
-  	}
+    if (!Platform.isWindows) {
+      writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+    } else {
+      String user = Platform.environment["UserProfile"];
+      writePath = ("$user\\Documents\\Data\\");
+    }
     Directory data = Directory(writePath);
     if (!await (data.exists())) {
       await data.create();
@@ -205,16 +219,20 @@ class _homePage extends State<homePage> {
   _readPokemonData(String path) async {
     String rawJson = await Pokemon.readPokemonJson(path);
     Map<String, dynamic> map = jsonDecode(rawJson);
-    List<Pokemon> res = [];
+    List<Pokemon> pkmData = [];
+
     map["Pokemon"].forEach((element) {
-      res.add(Pokemon.fromJson(element));
+      pkmData.add(Pokemon.fromJson(element));
     });
-    return res;
+    Map<String, List> pkmMoves = {};
+
+    pkmMoves = map["Moves"].cast<String, List>();
+    dataContainer.pkmData = pkmData;
+    dataContainer.pkmMoves = pkmMoves;
   }
 
   _openCard(BuildContext context, String path) async {
-    List<Pokemon> pkm = await _readPokemonData(path);
-    dataContainer.pkmData = pkm;
+    await _readPokemonData(path);
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => dataView(path)));
   }
