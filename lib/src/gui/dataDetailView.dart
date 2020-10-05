@@ -83,7 +83,7 @@ class _dataDetailViewState extends State<dataDetailView> {
               Text("TMs"),
               Table(
                 border: TableBorder.all(color: Colors.white),
-                children: [],
+                children: _movesRows(pkm.tmMoves.map((e) => [e]).toList()),
               ),
               Text("Huevo:"),
               Table(

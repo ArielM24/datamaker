@@ -189,3 +189,37 @@ List getMoveList(String move) {
   aux.add(str);
   return aux;
 }
+
+Map<String, List<String>> getTMs(List<String> lines) {
+  Map<String, List<String>> tms = {};
+  bool move = false;
+  String mv;
+  lines.forEach((line) {
+    if (line.startsWith("[")) {
+      move = true;
+      mv = line.substring(1, line.length - 1);
+    } else if (move) {
+      List pkm = line.split(",");
+      pkm.forEach((p) {
+        if (tms.containsKey(p)) {
+          tms[p] += [mv];
+        } else {
+          tms[p] = [mv];
+        }
+      });
+      move = false;
+    }
+  });
+  return tms;
+}
+
+List<Pokemon> addTms(Map<String, List<String>> tms, List<Pokemon> pkm) {
+  for (int i = 0; i < pkm.length; i++) {
+    String name = pkm[i].name.toUpperCase();
+    if (name == "PORYGON-Z") {
+      name = "PORYGONZ";
+    }
+    pkm[i].tmMoves = tms[name];
+  }
+  return pkm;
+}

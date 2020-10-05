@@ -7,7 +7,7 @@ import 'package:DataMaker/src/pokemon/pokemonUtils.dart';
 class Pokemon {
   int number, happines, stepsToHatch;
   String name, hiddenAbi, compability, pokedex;
-  List types, abilities, eggMoves;
+  List types, abilities, eggMoves, tmMoves;
   List stats, evs;
   List iconBytes;
   List moves, evolutions;
@@ -43,6 +43,7 @@ class Pokemon {
     this.types = json["types"];
     this.abilities = json["abilities"];
     this.eggMoves = json["eggMoves"];
+    this.tmMoves = json["tmMoves"];
     this.stats = json["stats"];
     this.evs = json["evs"];
     this.iconBytes = json["iconBytes"];
@@ -69,6 +70,7 @@ class Pokemon {
         "types": this.types,
         "abilities": this.abilities,
         "eggMoves": this.eggMoves,
+        "tmMoves": this.tmMoves,
         "stats": this.stats,
         "evs": this.evs,
         "iconBytes": this.iconBytes,
@@ -85,6 +87,7 @@ class Pokemon {
     l.forEach((element) {
       pkm.add(getPokemon(element));
     });
+    pkm = await readTms(gameFolder, pkm);
     return await _addIcons(gameFolder, pkm);
   }
 
@@ -171,6 +174,13 @@ class Pokemon {
     List lines = LineSplitter.split(await f.readAsString()).toList();
     dataContainer.pkmMoves = getMovesMap(lines);
     return dataContainer.pkmMoves;
+  }
+
+  static readTms(String folderPath, List<Pokemon> pkm) async {
+    File f = File(folderPath + "/PBS/tm.txt");
+    String str = await f.readAsString();
+    List l = LineSplitter.split(str).toList();
+    return addTms(getTMs(l), pkm);
   }
 }
 
