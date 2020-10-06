@@ -216,10 +216,14 @@ Map<String, List<String>> getTMs(List<String> lines) {
 List<Pokemon> addTms(Map<String, List<String>> tms, List<Pokemon> pkm) {
   for (int i = 0; i < pkm.length; i++) {
     String name = pkm[i].name.toUpperCase();
+    name = name.replaceAll(" ", "");
+
     if (name == "PORYGON-Z") {
       name = "PORYGONZ";
+    } else if (name == "CÓDIGOCERO") {
+      name = "TYPENULL";
     }
-    pkm[i].tmMoves = tms[name];
+    pkm[i].tmMoves = (tms[name] == null) ? [] : tms[name];
   }
   return pkm;
 }
