@@ -29,7 +29,7 @@ class _homePage extends State<homePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("DataMaker"),
+        title: Text("DataMaker 0.5"),
         leading: Padding(
             padding: const EdgeInsets.all(8),
             child: Image.asset("assets/pokemon-go.png")),

@@ -5,7 +5,6 @@ import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 
-
 class dataView extends StatefulWidget {
   String path;
 
@@ -29,9 +28,9 @@ class _dataView extends State<dataView> {
   @override
   Widget build(BuildContext context) {
     String name;
-    if(Platform.isWindows){
+    if (Platform.isWindows) {
       name = path.split("\\").last;
-    }else{
+    } else {
       name = path.split("/").last;
     }
     return Scaffold(
@@ -87,7 +86,7 @@ class _dataView extends State<dataView> {
                     ),
                     SizedBox(width: 30),
                     SizedBox(
-                      width: 56,
+                      width: 48,
                       child: AspectRatio(
                         aspectRatio: 1,
                         child: Container(

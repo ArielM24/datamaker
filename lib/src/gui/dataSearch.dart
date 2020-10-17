@@ -65,7 +65,7 @@ class dataSearch extends SearchDelegate {
                       width: 30,
                     ),
                     SizedBox(
-                        width: 56,
+                        width: 48,
                         child: AspectRatio(
                           aspectRatio: 1,
                           child: Container(
