@@ -1,0 +1,18 @@
+name: DataMaker
+version: '0.5'
+summary: RPG Maker Data app
+description: Creates information of a Pokemon game
+
+confinement: strict
+base: core18
+
+parts:
+  DataMaker:
+    plugin: flutter
+    source: https://github.com/ArielM24/DatMaker.git
+    flutter-target: lib/main.dart
+
+apps:
+  super-cool-app:
+    command: datamaker
+    extensions: [flutter-dev]

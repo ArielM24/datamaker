@@ -17,7 +17,7 @@ class homePage extends StatefulWidget {
 
 class _homePage extends State<homePage> {
   List<String> _lvItems = [];
-  String writePath;
+  String writePath, version = "DataMaker 0.5.1";
   bool started = false;
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _homePage extends State<homePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("DataMaker 0.5"),
+        title: Text(version),
         leading: Padding(
             padding: const EdgeInsets.all(8),
             child: Image.asset("assets/pokemon-go.png")),

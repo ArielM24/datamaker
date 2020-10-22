@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'DataMaker 0.5',
+      title: 'DataMaker 0.5.1',
       theme: ThemeData.dark().copyWith(
           textTheme: TextTheme(headline6: TextStyle(color: Colors.black87))),
       home: homePage(),
