@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class dataSearch extends SearchDelegate {
   List suggestions = [];
-
+  int index;
   @override
   List<Widget> buildActions(BuildContext context) {
     return [

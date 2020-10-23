@@ -50,7 +50,11 @@ class _dataDetailViewState extends State<dataDetailView> {
 
   Widget _DataPage() {
     return ListView(
-      children: _IconList() + _TypesList() + _HabilitiesList() + _ExtraList(),
+      children: _IconList() +
+          _TypesList() +
+          _HabilitiesList() +
+          _StatsList() +
+          _ExtraList(),
     );
   }
 
@@ -191,12 +195,21 @@ class _dataDetailViewState extends State<dataDetailView> {
           children: [
             Text("Movimientos:"),
             Table(
+                columnWidths: {
+                  0: FlexColumnWidth(1),
+                  1: FlexColumnWidth(1),
+                  2: FlexColumnWidth(15)
+                },
                 border: TableBorder.all(
                   color: Colors.white,
                 ),
                 children: _movesRows(pkm.moves)),
             Text("TMs"),
             Table(
+              columnWidths: {
+                0: FlexColumnWidth(1),
+                1: FlexColumnWidth(15),
+              },
               border: TableBorder.all(color: Colors.white),
               children: _movesRows(pkm.tmMoves.map((e) => [e]).toList()),
             ),
@@ -216,22 +229,27 @@ class _dataDetailViewState extends State<dataDetailView> {
     moves.forEach((move) {
       int index = move.length > 1 ? 1 : 0;
       rows.add(TableRow(
-          children: _makeListString(move)
-              .map((e) => GestureDetector(
-                    child: Padding(
-                      padding: EdgeInsets.all(5),
-                      child: Center(child: e),
-                    ),
-                    onTap: () {
-                      showAlertDialog(
-                          context: context,
-                          message:
-                              _moveStr(dataContainer.pkmMoves[move[index]]));
-                    },
-                  ))
-              .toList()));
+          children: <Widget>[
+                FlatButton(
+                  onPressed: () => _showMoveData(move[index]),
+                  child: Icon(Icons.more_horiz),
+                )
+              ] +
+              _makeListString(move)
+                  .map((e) => GestureDetector(
+                      child: Padding(
+                        padding: EdgeInsets.all(5),
+                        child: Center(child: e),
+                      ),
+                      onTap: () => _showMoveData(move[index])))
+                  .toList()));
     });
     return rows;
+  }
+
+  _showMoveData(String move) {
+    showAlertDialog(
+        context: context, message: _moveStr(dataContainer.pkmMoves[move]));
   }
 
   String _moveStr(List move) {
@@ -294,13 +312,14 @@ class _dataDetailViewState extends State<dataDetailView> {
 
   List<Widget> _makeEvolutionsList() {
     var tiles = <Widget>[];
-    for (int i = 0; i < pkm.evolutions.length; i++) {
+    var evolutions = pkm.getEvolutiveLine();
+    for (int i = 0; i < evolutions.length; i++) {
       tiles.add(_makeRoundedContainer(
         ListTile(
-          title: Text(pkm.evolutions[i][0]),
-          subtitle: Text("${pkm.evolutions[i][1]} ${pkm.evolutions[i][2]}"),
+          title: Text(evolutions[i][0]),
+          subtitle: Text("${evolutions[i][1]} ${evolutions[i][2]}"),
           onTap: () {
-            String name = pkm.evolutions[i][0];
+            String name = evolutions[i][0];
             if (name == "PORYGONZ") {
               name = "Porygon-Z";
               dataContainer.search(name);

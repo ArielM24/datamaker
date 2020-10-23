@@ -16,9 +16,11 @@ class homePage extends StatefulWidget {
 }
 
 class _homePage extends State<homePage> {
-  List<String> _lvItems = [];
-  String writePath, version = "DataMaker 0.5.1";
+  List _lvItems = [];
+  String writePath, version = "DataMaker 0.5.3";
   bool started = false;
+  List<Future> _cardNames = [];
+
   @override
   void initState() {
     super.initState();
@@ -38,7 +40,16 @@ class _homePage extends State<homePage> {
         child: ListView.builder(
           itemCount: _lvItems.length,
           itemBuilder: (context, int index) {
-            return _makeCard(index);
+            return FutureBuilder(
+              future: _cardNames[index],
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return _makeCard(index);
+                } else {
+                  return _loadingCard();
+                }
+              },
+            );
           },
         ),
       ),
@@ -60,6 +71,19 @@ class _homePage extends State<homePage> {
               onPressed: _refreshData),
         ],
       ),
+    );
+  }
+
+  Widget _loadingCard() {
+    return Card(
+      child: Image.asset(
+        "assets/loading.gif",
+        height: 50,
+        width: 50,
+      ),
+      elevation: 20,
+      margin: const EdgeInsets.all(10),
+      shadowColor: Colors.blue,
     );
   }
 
@@ -113,6 +137,7 @@ class _homePage extends State<homePage> {
         File f = File(_lvItems[index]);
         f.delete();
         _lvItems.removeAt(index);
+        _cardNames.removeAt(index);
       });
     }
   }
@@ -136,7 +161,6 @@ class _homePage extends State<homePage> {
   _createNew(BuildContext context) async {
     String user = Platform.environment["UserProfile"];
     String gameFolder = await _pickDirectory(context, user);
-    print(gameFolder);
     if (Platform.isWindows) {
       writePath = ("$user\\Documents\\Data\\");
     } else {
@@ -148,6 +172,7 @@ class _homePage extends State<homePage> {
     }
 
     if (gameFolder != null) {
+      _cardNames.add(_getCardName("name"));
       _writeGameData(gameFolder);
     }
   }
@@ -163,7 +188,7 @@ class _homePage extends State<homePage> {
       } else {
         name = gameFolder.split("/").last;
       }
-      readPath = writePath + "/$name";
+      readPath = writePath + "$name";
       await Pokemon.writePokemonJson(readPath, pkm, moves);
     } catch (ex) {
       print(ex);
@@ -171,7 +196,14 @@ class _homePage extends State<homePage> {
     }
     setState(() {
       _lvItems.add(readPath);
+      var fut = _getCardName(readPath);
+      _cardNames.last = fut;
     });
+  }
+
+  Future<String> _getCardName(String name) async {
+    await Future.delayed(Duration(seconds: 2));
+    return name;
   }
 
   Future<String> _pickDirectory(BuildContext context, String user) async {
@@ -196,21 +228,26 @@ class _homePage extends State<homePage> {
   }
 
   _refreshData() async {
+    String separator;
     if (!Platform.isWindows) {
       writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
+      separator = "\\";
     } else {
       String user = Platform.environment["UserProfile"];
       writePath = ("$user\\Documents\\Data\\");
+      separator = "/";
     }
     Directory data = Directory(writePath);
     if (!await (data.exists())) {
       await data.create();
     }
+    _lvItems = [];
     var l = data.list();
     l.forEach((element) {
       setState(() {
         if (!_lvItems.contains(element.path)) {
           _lvItems.add(element.path);
+          _cardNames.add(_getCardName(element.path));
         }
       });
     });

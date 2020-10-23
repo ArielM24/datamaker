@@ -51,6 +51,22 @@ class Pokemon {
     this.evolutions = json["evolutions"];
   }
 
+  List getEvolutiveLine() {
+    List evo = [];
+    evo.addAll(this.evolutions);
+    this.evolutions.forEach((element) {
+      var evols = dataContainer.pkmData.firstWhere(
+          (p) =>
+              p.name ==
+              "${element[0][0]}${element[0].substring(1).toLowerCase()}",
+          orElse: () => null);
+      if (evols != null) {
+        evo.addAll(evols.getEvolutiveLine());
+      }
+    });
+    return evo;
+  }
+
   @override
   String toString() {
     return "pokemon:\n$number\n$name\n$types\n$stats"
@@ -186,7 +202,7 @@ class Pokemon {
 
 class dataContainer {
   static List<Pokemon> pkmData;
-  static int selected = 0;
+  static int selected = 0, predecesor = -1;
   static Map<String, List> pkmMoves;
 
   static Pokemon selection() {
