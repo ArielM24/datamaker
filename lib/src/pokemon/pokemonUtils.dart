@@ -162,6 +162,24 @@ Pokemon getPokemon(String pkmStr) {
   return p;
 }
 
+Map<String, List> getAbilitiesMap(List<String> pkmAbilities) {
+  Map<String, List> abilities = {};
+  for (var a in pkmAbilities) {
+    var ability = getAbilityList(a);
+    abilities[ability[0]] = ability;
+  }
+  return abilities;
+}
+
+List getAbilityList(String ability) {
+  var a = ability.split(",");
+  List aux = [];
+  aux.add(a[1]);
+  aux.add(a[2]);
+  aux.add(a.sublist(3).join());
+  return aux;
+}
+
 Map<String, List> getMovesMap(List<String> pkmMoves) {
   Map<String, List> moves = {};
   for (var m in pkmMoves) {
@@ -174,19 +192,12 @@ Map<String, List> getMovesMap(List<String> pkmMoves) {
 List getMoveList(String move) {
   var m = move.split(",");
   List aux = [];
-  aux.add(m[1]);
-  aux.add(m[2]);
-  aux.add(m[4]);
-  aux.add(m[5]);
-  aux.add(m[6]);
-  aux.add(m[7]);
-  aux.add(m[8]);
-  aux.add(m[9]);
-  String str = "";
-  for (int i = 13; i < m.length; i++) {
-    str = str + m[i];
+  for (int i = 1; i < 10; i++) {
+    if (i != 3) {
+      aux.add(m[i]);
+    }
   }
-  aux.add(str);
+  aux.add(m.sublist(13).join());
   return aux;
 }
 

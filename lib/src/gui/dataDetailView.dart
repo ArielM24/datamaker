@@ -196,8 +196,8 @@ class _dataDetailViewState extends State<dataDetailView> {
             Text("Movimientos:"),
             Table(
                 columnWidths: {
-                  0: FlexColumnWidth(1),
-                  1: FlexColumnWidth(1),
+                  0: FlexColumnWidth(3),
+                  1: FlexColumnWidth(2),
                   2: FlexColumnWidth(15)
                 },
                 border: TableBorder.all(
@@ -207,14 +207,18 @@ class _dataDetailViewState extends State<dataDetailView> {
             Text("TMs"),
             Table(
               columnWidths: {
-                0: FlexColumnWidth(1),
-                1: FlexColumnWidth(15),
+                0: FlexColumnWidth(3),
+                1: FlexColumnWidth(10),
               },
               border: TableBorder.all(color: Colors.white),
               children: _movesRows(pkm.tmMoves.map((e) => [e]).toList()),
             ),
             Text("Huevo:"),
             Table(
+                columnWidths: {
+                  0: FlexColumnWidth(3),
+                  1: FlexColumnWidth(10),
+                },
                 border: TableBorder.all(color: Colors.white),
                 children: _movesRows(pkm.eggMoves.map((e) => [e]).toList())),
           ],
@@ -225,12 +229,19 @@ class _dataDetailViewState extends State<dataDetailView> {
 
   List<TableRow> _movesRows(List moves) {
     var rows = <TableRow>[];
-
+    if (moves.isNotEmpty) {
+      if (moves[0].length == 2) {
+        rows.add(
+            TableRow(children: [Text("Info"), Text("Nivel"), Text("Nombre")]));
+      } else if (moves[0].length == 1) {
+        rows.add(TableRow(children: [Text("Info"), Text("Nombre")]));
+      }
+    }
     moves.forEach((move) {
       int index = move.length > 1 ? 1 : 0;
       rows.add(TableRow(
           children: <Widget>[
-                FlatButton(
+                RaisedButton(
                   onPressed: () => _showMoveData(move[index]),
                   child: Icon(Icons.more_horiz),
                 )
@@ -253,7 +264,7 @@ class _dataDetailViewState extends State<dataDetailView> {
   }
 
   String _moveStr(List move) {
-    String str = "${move[1]}\n"
+    return "${move[1]}\n"
         "Potencia: ${move[2] == '0' ? '-' : move[2]}\n"
         "Tipo: ${move[3]}\n"
         "Categoría: ${move[4]}\n"
@@ -261,8 +272,6 @@ class _dataDetailViewState extends State<dataDetailView> {
         "PPs: ${move[6]}\n"
         "Probabilidad de efecto: ${move[7] == '0' ? '-' : move[7]}\n"
         "Descripción: ${move[8]}\n";
-
-    return str;
   }
 
   List<Widget> _makeListString(List str) {
@@ -297,7 +306,9 @@ class _dataDetailViewState extends State<dataDetailView> {
             child: Center(child: Text(element)),
           ),
           onTap: () {
-            showAlertDialog(context: context, message: "$element");
+            showAlertDialog(
+                context: context,
+                message: "${abilityStr(dataContainer.pkmAbilities[element])}");
           },
         )
       ]));
@@ -310,29 +321,68 @@ class _dataDetailViewState extends State<dataDetailView> {
     );
   }
 
+  String abilityStr(List ability) {
+    return "${ability[1]}\n"
+        "Descripción: ${ability[2]}";
+  }
+
   List<Widget> _makeEvolutionsList() {
     var tiles = <Widget>[];
     var evolutions = pkm.getEvolutiveLine();
     for (int i = 0; i < evolutions.length; i++) {
-      tiles.add(_makeRoundedContainer(
-        ListTile(
-          title: Text(evolutions[i][0]),
-          subtitle: Text("${evolutions[i][1]} ${evolutions[i][2]}"),
-          onTap: () {
-            String name = evolutions[i][0];
-            if (name == "PORYGONZ") {
-              name = "Porygon-Z";
-              dataContainer.search(name);
-            } else {
-              dataContainer
-                  .search("${name[0]}${name.substring(1).toLowerCase()}");
-            }
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => dataDetailView()));
-          },
-        ),
-      ));
+      String name = _normalizeName(evolutions[i][0]);
+      tiles.add(
+        GestureDetector(
+            child: _makeRoundedContainer(
+              Row(
+                children: [
+                  SizedBox(
+                    width: 210,
+                    child: ListTile(
+                        title: Text(evolutions[i][0]),
+                        subtitle:
+                            Text("${evolutions[i][1]} ${evolutions[i][2]}"),
+                        onTap: () => _navigateEvol(context, name)),
+                  ),
+                  _iconEvol(name),
+                ],
+              ),
+            ),
+            onTap: () => _navigateEvol(context, name)),
+      );
     }
     return tiles;
+  }
+
+  String _normalizeName(String name) {
+    if (name == "PORYGONZ") {
+      name = "Porygon-Z";
+    } else {
+      name = "${name[0]}${name.substring(1).toLowerCase()}";
+    }
+    return name;
+  }
+
+  Widget _iconEvol(String name) {
+    return SizedBox(
+      width: 48,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  fit: BoxFit.fitHeight,
+                  alignment: Alignment.centerLeft,
+                  image: MemoryImage(
+                      dataContainer.getPokemon(name).getIconBytes()))),
+        ),
+      ),
+    );
+  }
+
+  _navigateEvol(BuildContext context, String name) {
+    dataContainer.search(name);
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => dataDetailView()));
   }
 }

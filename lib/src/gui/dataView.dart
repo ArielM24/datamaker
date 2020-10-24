@@ -1,5 +1,6 @@
 import 'package:DataMaker/src/gui/dataDetailView.dart';
 import 'package:DataMaker/src/gui/dataSearch.dart';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -17,7 +18,6 @@ class _dataView extends State<dataView> {
   String path;
   int index = 1;
   var scrollControler = ScrollController();
-  //List<Pokemon> pkm = [];
   _dataView(this.path);
   @override
   void initState() {
@@ -52,8 +52,6 @@ class _dataView extends State<dataView> {
         ),
         body: Center(
             child: Scrollbar(
-          //labelTextBuilder: (double offset) => Text("${offset ~/ 100}"),
-
           controller: scrollControler,
           child: ListView.builder(
               controller: scrollControler,
@@ -61,11 +59,76 @@ class _dataView extends State<dataView> {
               itemBuilder: (context, int i) {
                 return makeList(context, i);
               }),
-        )));
+        )),
+        drawer: _makeDrawer());
+  }
+
+  Widget _makeDrawer() {
+    return Drawer(
+        child: ListView(
+      children: [
+        DrawerHeader(
+          child: Center(child: Text("Buscar estadísticas")),
+        ),
+        ListTile(
+          title: RaisedButton(
+              color: Colors.blue,
+              child: Text("Número"),
+              onPressed: _statSearch),
+        ),
+        ListTile(
+          title: RaisedButton(
+              color: Colors.blue,
+              child: Text("Rango"),
+              onPressed: _rangeSearch),
+        ),
+      ],
+    ));
+  }
+
+  _statSearch() async {
+    var stat = await showTextInputDialog(
+        context: context,
+        textFields: [DialogTextField()],
+        message: "Estadística total");
+    if (stat != null) {
+      _showResults(stat);
+    }
+  }
+
+  _rangeSearch() async {
+    var stat = await showTextInputDialog(
+        context: context,
+        textFields: [DialogTextField(), DialogTextField(), DialogTextField()],
+        message: "Estadística total, rango (inferior,superior)");
+    if (stat != null) {
+      _showResults(stat);
+    }
+  }
+
+  _showResults(List stat) {
+    int n, inf = 0, sup = 0;
+    n = int.parse(stat[0]);
+    if (stat.length > 2) {
+      inf = int.parse(stat[1]);
+      sup = int.parse(stat[2]);
+    }
+    var res = dataContainer.searchStats(n, inf, sup);
+    List<AlertDialogAction> acts = [];
+    bool first = true;
+    res.forEach((element) {
+      acts.add(AlertDialogAction(label: element, isDefaultAction: first));
+      first = false;
+    });
+    showConfirmationDialog(
+      context: context,
+      message: "${res.length} Resultado(s)",
+      title: "Resultado(s)",
+      actions: acts,
+    );
   }
 
   Widget makeList(BuildContext context, int i) {
-    //dataContainer.selected = i;
     return Card(
       child: Container(
         decoration: BoxDecoration(

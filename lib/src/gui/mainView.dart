@@ -17,7 +17,7 @@ class homePage extends StatefulWidget {
 
 class _homePage extends State<homePage> {
   List _lvItems = [];
-  String writePath, version = "DataMaker 0.5.3";
+  String writePath, version = "DataMaker 0.6.2";
   bool started = false;
   List<Future> _cardNames = [];
 
@@ -182,14 +182,9 @@ class _homePage extends State<homePage> {
     try {
       var pkm = await Pokemon.readPokemonFile(gameFolder);
       var moves = await Pokemon.readMoves(gameFolder);
-      String name;
-      if (Platform.isWindows) {
-        name = gameFolder.split("\\").last;
-      } else {
-        name = gameFolder.split("/").last;
-      }
-      readPath = writePath + "$name";
-      await Pokemon.writePokemonJson(readPath, pkm, moves);
+      var abilities = await Pokemon.readAbilities(gameFolder);
+      readPath = writePath + "${_getGameName(gameFolder)}";
+      await Pokemon.writePokemonJson(readPath, pkm, moves, abilities);
     } catch (ex) {
       print(ex);
       print("ayuda");
@@ -199,6 +194,16 @@ class _homePage extends State<homePage> {
       var fut = _getCardName(readPath);
       _cardNames.last = fut;
     });
+  }
+
+  String _getGameName(gameFolder) {
+    String name;
+    if (Platform.isWindows) {
+      name = gameFolder.split("\\").last;
+    } else {
+      name = gameFolder.split("/").last;
+    }
+    return name;
   }
 
   Future<String> _getCardName(String name) async {
@@ -261,11 +266,12 @@ class _homePage extends State<homePage> {
     map["Pokemon"].forEach((element) {
       pkmData.add(Pokemon.fromJson(element));
     });
-    Map<String, List> pkmMoves = {};
-
+    Map<String, List> pkmMoves = {}, pkmAbilities = {};
     pkmMoves = map["Moves"].cast<String, List>();
+    pkmAbilities = map["Abilities"].cast<String, List>();
     dataContainer.pkmData = pkmData;
     dataContainer.pkmMoves = pkmMoves;
+    dataContainer.pkmAbilities = pkmAbilities;
   }
 
   _openCard(BuildContext context, String path) async {

@@ -67,6 +67,14 @@ class Pokemon {
     return evo;
   }
 
+  int totalStats() {
+    int total = 0;
+    stats.forEach((element) {
+      total += element;
+    });
+    return total;
+  }
+
   @override
   String toString() {
     return "pokemon:\n$number\n$name\n$types\n$stats"
@@ -115,11 +123,15 @@ class Pokemon {
     return pkm;
   }
 
-  static Future writePokemonJson(
-      String path, List<Pokemon> pkm, Map<String, List> moves) async {
+  static Future writePokemonJson(String path, List<Pokemon> pkm,
+      Map<String, List> moves, abilities) async {
     File fout = File(path);
     await fout.create(recursive: true);
-    Map<String, dynamic> mpkm = {"Pokemon": pkm, "Moves": moves};
+    Map<String, dynamic> mpkm = {
+      "Pokemon": pkm,
+      "Moves": moves,
+      "Abilities": abilities
+    };
     String rawJson = jsonEncode(mpkm);
     await fout.writeAsString(rawJson);
   }
@@ -195,8 +207,16 @@ class Pokemon {
   static readTms(String folderPath, List<Pokemon> pkm) async {
     File f = File(folderPath + "/PBS/tm.txt");
     String str = await f.readAsString();
-    List l = LineSplitter.split(str).toList();
-    return addTms(getTMs(l), pkm);
+    List lines = LineSplitter.split(str).toList();
+    return addTms(getTMs(lines), pkm);
+  }
+
+  static readAbilities(String folderPath) async {
+    File f = File(folderPath + "/PBS/abilities.txt");
+    String str = await f.readAsString();
+    List lines = LineSplitter.split(str).toList();
+    dataContainer.pkmAbilities = getAbilitiesMap(lines);
+    return dataContainer.pkmAbilities;
   }
 }
 
@@ -204,7 +224,7 @@ class dataContainer {
   static List<Pokemon> pkmData;
   static int selected = 0, predecesor = -1;
   static Map<String, List> pkmMoves;
-
+  static Map<String, List> pkmAbilities;
   static Pokemon selection() {
     return pkmData[selected];
   }
@@ -216,5 +236,22 @@ class dataContainer {
     } else {
       selected = 0;
     }
+  }
+
+  static Pokemon getPokemon(String name) {
+    int exist = pkmData.indexWhere((pkm) => pkm.name == name);
+    if (exist > -1) {
+      return pkmData[exist];
+    } else {
+      return pkmData.first;
+    }
+  }
+
+  static List<String> searchStats(int stats, [int inferior = 0, superior = 0]) {
+    return pkmData
+        .where((pkm) => (pkm.totalStats() >= (stats - inferior) &&
+            pkm.totalStats() <= (stats + superior)))
+        .map((p) => p.name)
+        .toList();
   }
 }
