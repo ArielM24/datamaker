@@ -314,7 +314,7 @@ class _dataDetailViewState extends State<dataDetailView> {
       ]));
     });
     rows.insert(
-        rows.length - 1, TableRow(children: [Center(child: Text("Huevo:"))]));
+        rows.length - 1, TableRow(children: [Center(child: Text("Oculta:"))]));
     return Table(
       border: TableBorder.all(color: Colors.white),
       children: rows,
