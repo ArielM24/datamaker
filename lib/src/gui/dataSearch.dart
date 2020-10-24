@@ -24,6 +24,12 @@ class dataSearch extends SearchDelegate {
           progress: transitionAnimation,
         ),
         onPressed: () {
+          if (dataContainer.hasSearched) {
+            dataContainer.searching--;
+            if (dataContainer.searching == 0) {
+              dataContainer.hasSearched = false;
+            }
+          }
           close(context, null);
         });
   }
@@ -87,6 +93,11 @@ class dataSearch extends SearchDelegate {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: results[i].getTypesImages())),
             onTap: () {
+              if (dataContainer.searching == 0) {
+                dataContainer.predecesor = results[i].name;
+                dataContainer.hasSearched = true;
+              }
+              dataContainer.searching++;
               dataContainer.search(results[i].name);
               showResults(context);
             },

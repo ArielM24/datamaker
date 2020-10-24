@@ -1,3 +1,4 @@
+import 'package:DataMaker/src/gui/dataView.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
@@ -27,7 +28,27 @@ class _dataDetailViewState extends State<dataDetailView> {
           leading: IconButton(
             icon: Image.asset("assets/pokemon-go.png"),
             onPressed: () {
-              Navigator.pop(context);
+              if (dataContainer.searching > 0) {
+                dataContainer.searching--;
+                if (dataContainer.searching == 1) {
+                  dataContainer.search(dataContainer.predecesor);
+                  dataContainer.predecesor = "";
+                  dataContainer.searching--;
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => dataDetailView()));
+                } else if (dataContainer.searching > 1) {
+                  Navigator.pop(context);
+                } else if (dataContainer.hasSearched) {
+                  dataContainer.hasSearched = false;
+                  Navigator.pop(context);
+                }
+              } else {
+                Navigator.pop(context);
+              }
             },
           )),
       body: _pages.elementAt(_currentIndex),
@@ -381,6 +402,9 @@ class _dataDetailViewState extends State<dataDetailView> {
   }
 
   _navigateEvol(BuildContext context, String name) {
+    if (dataContainer.searching > 0) {
+      dataContainer.searching++;
+    }
     dataContainer.search(name);
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => dataDetailView()));

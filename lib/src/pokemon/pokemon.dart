@@ -222,9 +222,12 @@ class Pokemon {
 
 class dataContainer {
   static List<Pokemon> pkmData;
-  static int selected = 0, predecesor = -1;
+  static int selected = 0;
   static Map<String, List> pkmMoves;
   static Map<String, List> pkmAbilities;
+  static int searching = 0;
+  static bool hasSearched = false;
+  static String predecesor;
   static Pokemon selection() {
     return pkmData[selected];
   }
