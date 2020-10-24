@@ -6,19 +6,21 @@ import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 
-class dataView extends StatefulWidget {
-  String path;
+class DataView extends StatefulWidget {
+  final String path;
 
-  dataView(this.path, {Key key}) : super(key: key);
+  DataView(this.path, {Key key}) : super(key: key);
   @override
-  createState() => _dataView(path);
+  createState() => _DataView(path);
 }
 
-class _dataView extends State<dataView> {
+class _DataView extends State<DataView> {
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String path;
   int index = 1;
+  String name;
   var scrollControler = ScrollController();
-  _dataView(this.path);
+  _DataView(this.path);
   @override
   void initState() {
     super.initState();
@@ -27,27 +29,42 @@ class _dataView extends State<dataView> {
 
   @override
   Widget build(BuildContext context) {
-    String name;
     if (Platform.isWindows) {
       name = path.split("\\").last;
     } else {
       name = path.split("/").last;
     }
     return Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
-          title: Text("$name"),
+          title: Text(
+            "$name",
+            overflow: TextOverflow.fade,
+          ),
           leading: IconButton(
-            icon: Image.asset("assets/pokemon-go.png"),
+            icon: Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.pop(context);
             },
           ),
           actions: [
-            IconButton(
-                icon: Icon(Icons.search),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+              child: IconButton(
+                icon: Icon(Icons.menu),
                 onPressed: () {
-                  showSearch(context: context, delegate: dataSearch());
-                })
+                  _scaffoldKey.currentState.openDrawer();
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+              child: IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () {
+                    showSearch(context: context, delegate: DataSearch());
+                  }),
+            )
           ],
         ),
         body: Center(
@@ -68,7 +85,7 @@ class _dataView extends State<dataView> {
         child: ListView(
       children: [
         DrawerHeader(
-          child: Center(child: Text("Buscar estadísticas")),
+          child: Center(child: Text("$name\nBuscar estadísticas")),
         ),
         ListTile(
           title: RaisedButton(
@@ -113,7 +130,7 @@ class _dataView extends State<dataView> {
       inf = int.parse(stat[1]);
       sup = int.parse(stat[2]);
     }
-    var res = dataContainer.searchStats(n, inf, sup);
+    var res = DataContainer.searchStats(n, inf, sup);
     List<AlertDialogAction> acts = [];
     bool first = true;
     res.forEach((element) {
@@ -135,7 +152,7 @@ class _dataView extends State<dataView> {
             gradient: LinearGradient(
                 begin: Alignment.bottomRight,
                 end: Alignment.bottomCenter,
-                colors: dataContainer.pkmData[i].getColors())),
+                colors: DataContainer.pkmData[i].getColors())),
         child: Column(
           children: [
             ListTile(
@@ -144,7 +161,7 @@ class _dataView extends State<dataView> {
                 child: Row(
                   children: [
                     Text(
-                      "${dataContainer.pkmData[i].number}",
+                      "${DataContainer.pkmData[i].number}",
                       style: GoogleFonts.lobster(),
                     ),
                     SizedBox(width: 30),
@@ -157,7 +174,7 @@ class _dataView extends State<dataView> {
                               image: DecorationImage(
                                   fit: BoxFit.fitHeight,
                                   alignment: Alignment.centerLeft,
-                                  image: MemoryImage(dataContainer.pkmData[i]
+                                  image: MemoryImage(DataContainer.pkmData[i]
                                       .getIconBytes()))),
                         ),
                       ),
@@ -169,11 +186,11 @@ class _dataView extends State<dataView> {
                 width: 120,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
-                  children: dataContainer.pkmData[i].getTypesImages(),
+                  children: DataContainer.pkmData[i].getTypesImages(),
                 ),
               ),
               title: Text(
-                "${dataContainer.pkmData[i].name}",
+                "${DataContainer.pkmData[i].name}",
               ),
               onTap: () {
                 _changeView(context, i);
@@ -187,12 +204,12 @@ class _dataView extends State<dataView> {
   }
 
   _changeView(BuildContext context, int index) {
-    dataContainer.selected = index;
+    DataContainer.selected = index;
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => dataDetailView()));
+        context, MaterialPageRoute(builder: (context) => DataDetailView()));
   }
 
   _setData() {
-    index = dataContainer.pkmData.length;
+    index = DataContainer.pkmData.length;
   }
 }

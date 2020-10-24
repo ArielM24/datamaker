@@ -9,15 +9,15 @@ import 'package:android_path_provider/android_path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:convert';
 
-class homePage extends StatefulWidget {
-  homePage({Key key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  HomePage({Key key}) : super(key: key);
   @override
-  createState() => _homePage();
+  createState() => _HomePage();
 }
 
-class _homePage extends State<homePage> {
+class _HomePage extends State<HomePage> {
   List _lvItems = [];
-  String writePath, version = "DataMaker 0.6.2";
+  String writePath, version = "DataMaker 0.7.0";
   bool started = false;
   List<Future> _cardNames = [];
 
@@ -183,8 +183,10 @@ class _homePage extends State<homePage> {
       var pkm = await Pokemon.readPokemonFile(gameFolder);
       var moves = await Pokemon.readMoves(gameFolder);
       var abilities = await Pokemon.readAbilities(gameFolder);
+      var locations = await Pokemon.readLocations(gameFolder);
       readPath = writePath + "${_getGameName(gameFolder)}";
-      await Pokemon.writePokemonJson(readPath, pkm, moves, abilities);
+      await Pokemon.writePokemonJson(
+          readPath, pkm, moves, abilities, locations);
     } catch (ex) {
       print(ex);
       print("ayuda");
@@ -233,14 +235,11 @@ class _homePage extends State<homePage> {
   }
 
   _refreshData() async {
-    String separator;
     if (!Platform.isWindows) {
       writePath = (await getApplicationDocumentsDirectory()).path + "/Data/";
-      separator = "\\";
     } else {
       String user = Platform.environment["UserProfile"];
       writePath = ("$user\\Documents\\Data\\");
-      separator = "/";
     }
     Directory data = Directory(writePath);
     if (!await (data.exists())) {
@@ -266,17 +265,19 @@ class _homePage extends State<homePage> {
     map["Pokemon"].forEach((element) {
       pkmData.add(Pokemon.fromJson(element));
     });
-    Map<String, List> pkmMoves = {}, pkmAbilities = {};
+    Map<String, List> pkmMoves = {}, pkmAbilities = {}, pkmLocations = {};
     pkmMoves = map["Moves"].cast<String, List>();
     pkmAbilities = map["Abilities"].cast<String, List>();
-    dataContainer.pkmData = pkmData;
-    dataContainer.pkmMoves = pkmMoves;
-    dataContainer.pkmAbilities = pkmAbilities;
+    pkmLocations = map["Locations"].cast<String, List>();
+    DataContainer.pkmData = pkmData;
+    DataContainer.pkmMoves = pkmMoves;
+    DataContainer.pkmAbilities = pkmAbilities;
+    DataContainer.pkmLocations = pkmLocations;
   }
 
   _openCard(BuildContext context, String path) async {
     await _readPokemonData(path);
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => dataView(path)));
+        context, MaterialPageRoute(builder: (context) => DataView(path)));
   }
 }

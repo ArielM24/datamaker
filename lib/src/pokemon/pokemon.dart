@@ -6,7 +6,7 @@ import 'package:DataMaker/src/pokemon/pokemonUtils.dart';
 
 class Pokemon {
   int number, happines, stepsToHatch;
-  String name, hiddenAbi, compability, pokedex;
+  String name, internalName, hiddenAbi, compability, weight, locations, pokedex;
   List types, abilities, eggMoves, tmMoves;
   List stats, evs;
   List iconBytes;
@@ -37,8 +37,11 @@ class Pokemon {
     this.happines = json["happines"];
     this.stepsToHatch = json["stepsToHatch"];
     this.name = json["name"];
+    this.internalName = json["internalName"];
     this.hiddenAbi = json["hiddenAbi"];
     this.compability = json["compability"];
+    this.weight = json["weight"];
+    this.locations = json["locations"];
     this.pokedex = json["pokedex"];
     this.types = json["types"];
     this.abilities = json["abilities"];
@@ -55,7 +58,7 @@ class Pokemon {
     List evo = [];
     evo.addAll(this.evolutions);
     this.evolutions.forEach((element) {
-      var evols = dataContainer.pkmData.firstWhere(
+      var evols = DataContainer.pkmData.firstWhere(
           (p) =>
               p.name ==
               "${element[0][0]}${element[0].substring(1).toLowerCase()}",
@@ -88,8 +91,11 @@ class Pokemon {
         "happines": this.happines,
         "stepsToHatch": this.stepsToHatch,
         "name": this.name,
+        "internalName": this.internalName,
         "hiddenAbi": this.hiddenAbi,
         "compability": this.compability,
+        "weight": this.weight,
+        "locations": this.locations,
         "pokedex": this.pokedex,
         "types": this.types,
         "abilities": this.abilities,
@@ -104,7 +110,6 @@ class Pokemon {
   static Future<List<Pokemon>> readPokemonFile(String gameFolder) async {
     List<Pokemon> pkm = [];
     File f = File(gameFolder + "/PBS/pokemon.txt");
-    print(f.path);
     var str = await f.readAsString();
     List l = str.split("[");
     l.removeAt(0);
@@ -112,6 +117,7 @@ class Pokemon {
       pkm.add(getPokemon(element));
     });
     pkm = await readTms(gameFolder, pkm);
+    pkm = addLocations(await readLocations(gameFolder), pkm);
     return await _addIcons(gameFolder, pkm);
   }
 
@@ -124,13 +130,14 @@ class Pokemon {
   }
 
   static Future writePokemonJson(String path, List<Pokemon> pkm,
-      Map<String, List> moves, abilities) async {
+      Map<String, List> moves, abilities, locations) async {
     File fout = File(path);
     await fout.create(recursive: true);
     Map<String, dynamic> mpkm = {
       "Pokemon": pkm,
       "Moves": moves,
-      "Abilities": abilities
+      "Abilities": abilities,
+      "Locations": locations
     };
     String rawJson = jsonEncode(mpkm);
     await fout.writeAsString(rawJson);
@@ -200,8 +207,8 @@ class Pokemon {
   static readMoves(String folderPath) async {
     File f = File(folderPath + "/PBS/moves.txt");
     List lines = LineSplitter.split(await f.readAsString()).toList();
-    dataContainer.pkmMoves = getMovesMap(lines);
-    return dataContainer.pkmMoves;
+    DataContainer.pkmMoves = getMovesMap(lines);
+    return DataContainer.pkmMoves;
   }
 
   static readTms(String folderPath, List<Pokemon> pkm) async {
@@ -215,16 +222,30 @@ class Pokemon {
     File f = File(folderPath + "/PBS/abilities.txt");
     String str = await f.readAsString();
     List lines = LineSplitter.split(str).toList();
-    dataContainer.pkmAbilities = getAbilitiesMap(lines);
-    return dataContainer.pkmAbilities;
+    DataContainer.pkmAbilities = getAbilitiesMap(lines);
+    return DataContainer.pkmAbilities;
+  }
+
+  static readLocations(String folderPath) async {
+    File f = File(folderPath + "/PBS/encounters.txt");
+    String str;
+    try {
+      str = await f.readAsString();
+    } catch (Exception) {
+      str = await f.readAsString(encoding: latin1);
+    }
+    DataContainer.pkmLocations =
+        getLocationsMap(str.split(RegExp(r"(#+)")).sublist(1));
+    return DataContainer.pkmLocations;
   }
 }
 
-class dataContainer {
+class DataContainer {
   static List<Pokemon> pkmData;
   static int selected = 0;
   static Map<String, List> pkmMoves;
   static Map<String, List> pkmAbilities;
+  static Map<String, List> pkmLocations;
   static int searching = 0;
   static bool hasSearched = false;
   static String predecesor;
@@ -232,8 +253,13 @@ class dataContainer {
     return pkmData[selected];
   }
 
-  static void search(String name) {
-    int exist = pkmData.indexWhere((pkm) => pkm.name == name);
+  static void search(String name, [bool internal = false]) {
+    int exist;
+    if (!internal) {
+      exist = pkmData.indexWhere((pkm) => pkm.name == name);
+    } else {
+      exist = pkmData.indexWhere((pkm) => pkm.internalName == name);
+    }
     if (exist > -1) {
       selected = exist;
     } else {

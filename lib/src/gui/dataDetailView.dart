@@ -1,17 +1,16 @@
-import 'package:DataMaker/src/gui/dataView.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
 
-class dataDetailView extends StatefulWidget {
-  dataDetailView({Key key}) : super(key: key);
+class DataDetailView extends StatefulWidget {
+  DataDetailView({Key key}) : super(key: key);
 
   @override
-  createState() => _dataDetailViewState();
+  createState() => _DataDetailViewState();
 }
 
-class _dataDetailViewState extends State<dataDetailView> {
-  Pokemon pkm = dataContainer.selection();
+class _DataDetailViewState extends State<DataDetailView> {
+  Pokemon pkm = DataContainer.selection();
   double evHeigth;
   int _currentIndex = 0;
   var _pages = [];
@@ -19,67 +18,73 @@ class _dataDetailViewState extends State<dataDetailView> {
   @override
   Widget build(BuildContext context) {
     evHeigth = (90 * pkm.evolutions.length).toDouble();
-    _pages = [_DataPage(), _EvolPage(), _MovesPage()];
-    return Scaffold(
-      appBar: AppBar(
-          title: Text("${dataContainer.selection().name}"),
-          backgroundColor: dataContainer.selection().getColors()[0],
-          centerTitle: true,
-          leading: IconButton(
-            icon: Image.asset("assets/pokemon-go.png"),
-            onPressed: () {
-              if (dataContainer.searching > 0) {
-                dataContainer.searching--;
-                if (dataContainer.searching == 1) {
-                  dataContainer.search(dataContainer.predecesor);
-                  dataContainer.predecesor = "";
-                  dataContainer.searching--;
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => dataDetailView()));
-                } else if (dataContainer.searching > 1) {
-                  Navigator.pop(context);
-                } else if (dataContainer.hasSearched) {
-                  dataContainer.hasSearched = false;
-                  Navigator.pop(context);
-                }
-              } else {
-                Navigator.pop(context);
-              }
-            },
-          )),
-      body: _pages.elementAt(_currentIndex),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        fixedColor: Colors.white,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.leaderboard), label: "Data"),
-          BottomNavigationBarItem(icon: Icon(Icons.upgrade), label: "Evol"),
-          BottomNavigationBarItem(icon: Icon(Icons.data_usage), label: "Moves"),
-        ],
-        onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+    _pages = [_dataPage(), _evolPage(), _movesPage()];
+    return WillPopScope(
+      onWillPop: () => _onBackPressed(context),
+      child: Scaffold(
+        appBar: AppBar(
+            title: Text("${DataContainer.selection().name}"),
+            backgroundColor: DataContainer.selection().getColors()[0],
+            centerTitle: true,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => _onBackPressed(context),
+            )),
+        body: _pages.elementAt(_currentIndex),
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          fixedColor: Colors.white,
+          items: [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.leaderboard), label: "Data"),
+            BottomNavigationBarItem(icon: Icon(Icons.upgrade), label: "Evol"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.data_usage), label: "Moves"),
+          ],
+          onTap: (int index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+        ),
       ),
     );
   }
 
-  Widget _DataPage() {
+  Future<bool> _onBackPressed(BuildContext context) async {
+    if (DataContainer.searching > 0) {
+      DataContainer.searching--;
+      if (DataContainer.searching == 1) {
+        DataContainer.search(DataContainer.predecesor);
+        DataContainer.predecesor = "";
+        DataContainer.searching--;
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => DataDetailView()));
+      } else if (DataContainer.searching > 1) {
+        Navigator.pop(context);
+      } else if (DataContainer.hasSearched) {
+        DataContainer.hasSearched = false;
+        Navigator.pop(context);
+      }
+    } else {
+      Navigator.pop(context);
+    }
+    return true;
+  }
+
+  Widget _dataPage() {
     return ListView(
-      children: _IconList() +
-          _TypesList() +
-          _HabilitiesList() +
-          _StatsList() +
-          _ExtraList(),
+      children: _iconList() +
+          _typesList() +
+          _habilitiesList() +
+          _statsList() +
+          _extraList(),
     );
   }
 
-  List<Widget> _IconList() {
+  List<Widget> _iconList() {
     return [
       _makeRoundedContainer(Text("#Número ${pkm.number}")),
       _makeRoundedContainer(SizedBox(
@@ -95,10 +100,11 @@ class _dataDetailViewState extends State<dataDetailView> {
                   ),
                 ),
               )))),
+      _makeRoundedContainer(Text("Nombre interno: ${pkm.internalName}"))
     ];
   }
 
-  List<Widget> _TypesList() {
+  List<Widget> _typesList() {
     return [
       _makeRoundedContainer(Column(
         children: <Widget>[Text("Tipo(s):")] +
@@ -112,7 +118,7 @@ class _dataDetailViewState extends State<dataDetailView> {
     ];
   }
 
-  List<Widget> _HabilitiesList() {
+  List<Widget> _habilitiesList() {
     return [
       _makeRoundedContainer(Column(children: <Widget>[
         Text("Habilidades:"),
@@ -121,7 +127,7 @@ class _dataDetailViewState extends State<dataDetailView> {
     ];
   }
 
-  List<Widget> _StatsList() {
+  List<Widget> _statsList() {
     return [
       _makeRoundedContainer(Text("Stats base")),
       _makeRoundedContainer(Table(
@@ -138,16 +144,19 @@ class _dataDetailViewState extends State<dataDetailView> {
           TableRow(children: _makeListString(pkm.stats)),
         ],
       )),
+      _makeRoundedContainer(Text("Total stats: ${pkm.totalStats()}")),
     ];
   }
 
-  List<Widget> _ExtraList() {
+  List<Widget> _extraList() {
     return [
       _makeRoundedContainer(Text("Datos extra")),
       _makeRoundedContainer(Column(
         children: [
+          Text("Locaciones:\n ${pkm.locations}"),
           Text("Felicidad base: ${pkm.happines}"),
           Text("Compatibilidad: ${pkm.compability}"),
+          Text("Peso: ${pkm.weight} Kg"),
           Text("Pasos para eclosionar: ${pkm.stepsToHatch}"),
           Text("Evs que suelta:"),
           Table(
@@ -170,7 +179,7 @@ class _dataDetailViewState extends State<dataDetailView> {
     ];
   }
 
-  Widget _EvolPage() {
+  Widget _evolPage() {
     return ListView(
       children: [
         _makeRoundedContainer(Text("#Número ${pkm.number}")),
@@ -195,7 +204,7 @@ class _dataDetailViewState extends State<dataDetailView> {
     );
   }
 
-  Widget _MovesPage() {
+  Widget _movesPage() {
     return ListView(
       children: [
         _makeRoundedContainer(Text("#Número ${pkm.number}")),
@@ -281,7 +290,7 @@ class _dataDetailViewState extends State<dataDetailView> {
 
   _showMoveData(String move) {
     showAlertDialog(
-        context: context, message: _moveStr(dataContainer.pkmMoves[move]));
+        context: context, message: _moveStr(DataContainer.pkmMoves[move]));
   }
 
   String _moveStr(List move) {
@@ -329,7 +338,7 @@ class _dataDetailViewState extends State<dataDetailView> {
           onTap: () {
             showAlertDialog(
                 context: context,
-                message: "${abilityStr(dataContainer.pkmAbilities[element])}");
+                message: "${abilityStr(DataContainer.pkmAbilities[element])}");
           },
         )
       ]));
@@ -395,18 +404,18 @@ class _dataDetailViewState extends State<dataDetailView> {
                   fit: BoxFit.fitHeight,
                   alignment: Alignment.centerLeft,
                   image: MemoryImage(
-                      dataContainer.getPokemon(name).getIconBytes()))),
+                      DataContainer.getPokemon(name).getIconBytes()))),
         ),
       ),
     );
   }
 
   _navigateEvol(BuildContext context, String name) {
-    if (dataContainer.searching > 0) {
-      dataContainer.searching++;
+    if (DataContainer.searching > 0) {
+      DataContainer.searching++;
     }
-    dataContainer.search(name);
+    DataContainer.search(name);
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => dataDetailView()));
+        context, MaterialPageRoute(builder: (context) => DataDetailView()));
   }
 }

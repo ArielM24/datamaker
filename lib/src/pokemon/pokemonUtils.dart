@@ -18,6 +18,13 @@ String getName(String str) {
       .group(1);
 }
 
+String getInternalName(String str) {
+  return RegExp(r"InternalName=([a-zA-Z\ \dÀ-ÿ\u00f1\u00d1\-]+)",
+          multiLine: true)
+      .firstMatch(str)
+      .group(1);
+}
+
 List<String> getTypes(String str) {
   List<String> types = [];
   RegExp type = RegExp(r"Type\d=([A-Z]+)");
@@ -93,7 +100,13 @@ List<String> getEggMoves(String str) {
 }
 
 String getCompatibility(String str) {
-  return RegExp(r"Compatibility=([A-Za-z]+)", multiLine: true)
+  return RegExp(r"Compatibility=([A-Za-z0-9,]+)", multiLine: true)
+      .firstMatch(str)
+      .group(1);
+}
+
+String getWeight(String str) {
+  return RegExp(r"Weight=([A-Za-z0-9,\.]+)", multiLine: true)
       .firstMatch(str)
       .group(1);
 }
@@ -147,6 +160,7 @@ Pokemon getPokemon(String pkmStr) {
   List<String> data = LineSplitter().convert(pkmStr);
   p.number = getNumbers(data[0])[0];
   p.name = getName(pkmStr);
+  p.internalName = getInternalName(pkmStr);
   p.types = getTypes(pkmStr);
   p.stats = getStats(pkmStr);
   p.evs = getEvs(pkmStr);
@@ -156,6 +170,7 @@ Pokemon getPokemon(String pkmStr) {
   p.moves = getMoves(pkmStr);
   p.eggMoves = getEggMoves(pkmStr);
   p.compability = getCompatibility(pkmStr);
+  p.weight = getWeight(pkmStr);
   p.stepsToHatch = getSteps(pkmStr);
   p.pokedex = getPokedex(pkmStr);
   p.evolutions = getEvolutions(pkmStr);
@@ -177,6 +192,38 @@ List getAbilityList(String ability) {
   aux.add(a[1]);
   aux.add(a[2]);
   aux.add(a.sublist(3).join());
+  return aux;
+}
+
+Map<String, List> getLocationsMap(List<String> pkmLocations) {
+  Map<String, List> locations = {};
+  for (int i = 1; i < pkmLocations.length; i += 2) {
+    var location = getLocationList(pkmLocations[i]);
+    if (locations.keys.contains(location[0])) {
+      locations[location[0]].addAll(location.sublist(1));
+    } else {
+      locations[location[0]] = location;
+    }
+  }
+  return locations;
+}
+
+List getLocationList(String location) {
+  List lines = LineSplitter.split(location).toList();
+  List aux = [];
+  String method;
+  aux.add(lines[0].trim());
+  for (int i = 2; i < lines.length; i++) {
+    List p = lines[i].split(",");
+    if (p.length == 1) {
+      method = p[0];
+    } else if (p.length > 2) {
+      aux.add(p[0]);
+      aux.add(method);
+      aux.add(p[1]);
+      aux.add(p[2]);
+    }
+  }
   return aux;
 }
 
@@ -228,13 +275,32 @@ List<Pokemon> addTms(Map<String, List<String>> tms, List<Pokemon> pkm) {
   for (int i = 0; i < pkm.length; i++) {
     String name = pkm[i].name.toUpperCase();
     name = name.replaceAll(" ", "");
-
     if (name == "PORYGON-Z") {
       name = "PORYGONZ";
     } else if (name == "CÓDIGOCERO") {
       name = "TYPENULL";
     }
     pkm[i].tmMoves = (tms[name] == null) ? [] : tms[name];
+  }
+  return pkm;
+}
+
+addLocations(Map<String, List<dynamic>> locations, List<Pokemon> pkm) {
+  print("add");
+  for (int i = 0; i < pkm.length; i++) {
+    if (pkm[i].locations == null) {
+      pkm[i].locations = "";
+    }
+    locations.forEach((key, value) {
+      if (value.contains(pkm[i].internalName)) {
+        int index = value.indexOf(pkm[i].internalName);
+        if (pkm[i].internalName == "GOLDUCK") {
+          print(value);
+        }
+        pkm[i].locations +=
+            "$key: ${value[index + 1]} (${value[index + 2]}, ${value[index + 3]}) lv\n";
+      }
+    });
   }
   return pkm;
 }

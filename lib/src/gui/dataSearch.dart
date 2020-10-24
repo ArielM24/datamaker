@@ -2,7 +2,7 @@ import 'package:DataMaker/src/gui/dataDetailView.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
 
-class dataSearch extends SearchDelegate {
+class DataSearch extends SearchDelegate {
   List suggestions = [];
   int index;
   @override
@@ -24,10 +24,10 @@ class dataSearch extends SearchDelegate {
           progress: transitionAnimation,
         ),
         onPressed: () {
-          if (dataContainer.hasSearched) {
-            dataContainer.searching--;
-            if (dataContainer.searching == 0) {
-              dataContainer.hasSearched = false;
+          if (DataContainer.hasSearched) {
+            DataContainer.searching--;
+            if (DataContainer.searching == 0) {
+              DataContainer.hasSearched = false;
             }
           }
           close(context, null);
@@ -36,31 +36,38 @@ class dataSearch extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    return dataDetailView();
+    return DataDetailView();
   }
 
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    List results = (query.isEmpty)
+  List _results() {
+    return (query.isEmpty)
         ? []
-        : dataContainer.pkmData
+        : DataContainer.pkmData
             .where((pkm) =>
                 (pkm.name.toLowerCase().startsWith(query.toLowerCase())) ||
+                (pkm.internalName
+                    .toLowerCase()
+                    .startsWith(query.toLowerCase())) ||
                 pkm.types.contains(query.toUpperCase()) ||
                 (pkm.evolutions.indexWhere((evolution) =>
                         evolution.contains(query.toUpperCase())) >
                     -1))
             .toList();
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List results = _results();
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, i) {
-        dataContainer.search(results[i].name);
+        DataContainer.search(results[i].name);
         return Container(
           decoration: BoxDecoration(
               gradient: LinearGradient(
                   begin: Alignment.bottomRight,
                   end: Alignment.bottomCenter,
-                  colors: dataContainer.selection().getColors())),
+                  colors: DataContainer.selection().getColors())),
           child: ListTile(
             leading: SizedBox(
                 width: 120,
@@ -93,12 +100,12 @@ class dataSearch extends SearchDelegate {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: results[i].getTypesImages())),
             onTap: () {
-              if (dataContainer.searching == 0) {
-                dataContainer.predecesor = results[i].name;
-                dataContainer.hasSearched = true;
+              if (DataContainer.searching == 0) {
+                DataContainer.predecesor = results[i].name;
+                DataContainer.hasSearched = true;
               }
-              dataContainer.searching++;
-              dataContainer.search(results[i].name);
+              DataContainer.searching++;
+              DataContainer.search(results[i].internalName, true);
               showResults(context);
             },
           ),

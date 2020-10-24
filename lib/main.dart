@@ -6,7 +6,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -14,7 +13,7 @@ class MyApp extends StatelessWidget {
       title: 'DataMaker',
       theme: ThemeData.dark().copyWith(
           textTheme: TextTheme(headline6: TextStyle(color: Colors.black87))),
-      home: homePage(),
+      home: HomePage(),
     );
   }
 }
