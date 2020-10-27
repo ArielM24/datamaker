@@ -1,6 +1,7 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
+import 'package:DataMaker/src/pokemon/dataContainer.dart';
 
 class DataDetailView extends StatefulWidget {
   DataDetailView({Key key}) : super(key: key);

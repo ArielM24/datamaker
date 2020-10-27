@@ -1,6 +1,6 @@
 import 'package:DataMaker/src/gui/dataDetailView.dart';
-import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
+import 'package:DataMaker/src/pokemon/dataContainer.dart';
 
 class DataSearch extends SearchDelegate {
   List suggestions = [];

@@ -1,8 +1,7 @@
 import 'dart:io';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:DataMaker/src/pokemon/pokemonUtils.dart';
+import 'package:DataMaker/src/pokemon/dataContainer.dart';
 
 class Pokemon {
   int number, happines, stepsToHatch;
@@ -107,41 +106,6 @@ class Pokemon {
         "moves": this.moves,
         "evolutions": this.evolutions
       };
-  static Future<List<Pokemon>> readPokemonFile(String gameFolder) async {
-    List<Pokemon> pkm = [];
-    File f = File(gameFolder + "/PBS/pokemon.txt");
-    var str = await f.readAsString();
-    List l = str.split("[");
-    l.removeAt(0);
-    l.forEach((element) {
-      pkm.add(getPokemon(element));
-    });
-    pkm = await readTms(gameFolder, pkm);
-    pkm = addLocations(await readLocations(gameFolder), pkm);
-    return await _addIcons(gameFolder, pkm);
-  }
-
-  static Future<List<Pokemon>> _addIcons(
-      String gameFolder, List<Pokemon> pkm) async {
-    for (int i = 0; i < pkm.length; i++) {
-      pkm[i].iconBytes = await getIconbytes(gameFolder, pkm[i].number);
-    }
-    return pkm;
-  }
-
-  static Future writePokemonJson(String path, List<Pokemon> pkm,
-      Map<String, List> moves, abilities, locations) async {
-    File fout = File(path);
-    await fout.create(recursive: true);
-    Map<String, dynamic> mpkm = {
-      "Pokemon": pkm,
-      "Moves": moves,
-      "Abilities": abilities,
-      "Locations": locations
-    };
-    String rawJson = jsonEncode(mpkm);
-    await fout.writeAsString(rawJson);
-  }
 
   static Future<String> readPokemonJson(String path) async {
     File f = File(path);
@@ -202,85 +166,5 @@ class Pokemon {
   Uint8List getIconBytes() {
     return Uint8List.fromList(
         iconBytes.map((e) => int.parse(e.toString())).toList());
-  }
-
-  static readMoves(String folderPath) async {
-    File f = File(folderPath + "/PBS/moves.txt");
-    List lines = LineSplitter.split(await f.readAsString()).toList();
-    DataContainer.pkmMoves = getMovesMap(lines);
-    return DataContainer.pkmMoves;
-  }
-
-  static readTms(String folderPath, List<Pokemon> pkm) async {
-    File f = File(folderPath + "/PBS/tm.txt");
-    String str = await f.readAsString();
-    List lines = LineSplitter.split(str).toList();
-    return addTms(getTMs(lines), pkm);
-  }
-
-  static readAbilities(String folderPath) async {
-    File f = File(folderPath + "/PBS/abilities.txt");
-    String str = await f.readAsString();
-    List lines = LineSplitter.split(str).toList();
-    DataContainer.pkmAbilities = getAbilitiesMap(lines);
-    return DataContainer.pkmAbilities;
-  }
-
-  static readLocations(String folderPath) async {
-    File f = File(folderPath + "/PBS/encounters.txt");
-    String str;
-    try {
-      str = await f.readAsString();
-    } catch (Exception) {
-      str = await f.readAsString(encoding: latin1);
-    }
-    DataContainer.pkmLocations =
-        getLocationsMap(str.split(RegExp(r"(#+)")).sublist(1));
-    return DataContainer.pkmLocations;
-  }
-}
-
-class DataContainer {
-  static List<Pokemon> pkmData;
-  static int selected = 0;
-  static Map<String, List> pkmMoves;
-  static Map<String, List> pkmAbilities;
-  static Map<String, List> pkmLocations;
-  static int searching = 0;
-  static bool hasSearched = false;
-  static String predecesor;
-  static Pokemon selection() {
-    return pkmData[selected];
-  }
-
-  static void search(String name, [bool internal = false]) {
-    int exist;
-    if (!internal) {
-      exist = pkmData.indexWhere((pkm) => pkm.name == name);
-    } else {
-      exist = pkmData.indexWhere((pkm) => pkm.internalName == name);
-    }
-    if (exist > -1) {
-      selected = exist;
-    } else {
-      selected = 0;
-    }
-  }
-
-  static Pokemon getPokemon(String name) {
-    int exist = pkmData.indexWhere((pkm) => pkm.name == name);
-    if (exist > -1) {
-      return pkmData[exist];
-    } else {
-      return pkmData.first;
-    }
-  }
-
-  static List<String> searchStats(int stats, [int inferior = 0, superior = 0]) {
-    return pkmData
-        .where((pkm) => (pkm.totalStats() >= (stats - inferior) &&
-            pkm.totalStats() <= (stats + superior)))
-        .map((p) => p.name)
-        .toList();
   }
 }

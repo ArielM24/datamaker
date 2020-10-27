@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 
 List<int> getNumbers(String str) {
@@ -140,21 +138,6 @@ List<List> getEvolutions(String str) {
   return ev;
 }
 
-Future<Uint8List> getIconbytes(String gameFolder, int number) async {
-  File iconFile = File(gameFolder +
-      "/Graphics/Icons/icon${number.toString().padLeft(3, '0')}.png");
-  var bytes;
-  try {
-    bytes = await iconFile.readAsBytes();
-  } catch (Exception) {
-    bytes =
-        await File(gameFolder + "/Graphics/Icons/icon000.png").readAsBytes();
-    print("No existe icono $number");
-  }
-
-  return bytes;
-}
-
 Pokemon getPokemon(String pkmStr) {
   Pokemon p = Pokemon();
   List<String> data = LineSplitter().convert(pkmStr);
@@ -286,7 +269,6 @@ List<Pokemon> addTms(Map<String, List<String>> tms, List<Pokemon> pkm) {
 }
 
 addLocations(Map<String, List<dynamic>> locations, List<Pokemon> pkm) {
-  print("add");
   for (int i = 0; i < pkm.length; i++) {
     if (pkm[i].locations == null) {
       pkm[i].locations = "";
@@ -294,9 +276,6 @@ addLocations(Map<String, List<dynamic>> locations, List<Pokemon> pkm) {
     locations.forEach((key, value) {
       if (value.contains(pkm[i].internalName)) {
         int index = value.indexOf(pkm[i].internalName);
-        if (pkm[i].internalName == "GOLDUCK") {
-          print(value);
-        }
         pkm[i].locations +=
             "$key: ${value[index + 1]} (${value[index + 2]}, ${value[index + 3]}) lv\n";
       }
