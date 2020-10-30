@@ -5,14 +5,15 @@ import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:DataMaker/src/filesIO/pkmReader.dart';
 
 Future writePokemonJson(String path, List<Pokemon> pkm, Map<String, List> moves,
-    abilities, locations) async {
+    abilities, locations, types) async {
   File fout = File(path);
   await fout.create(recursive: true);
   Map<String, dynamic> mpkm = {
     "Pokemon": pkm,
     "Moves": moves,
     "Abilities": abilities,
-    "Locations": locations
+    "Locations": locations,
+    "Types": types
   };
   String rawJson = jsonEncode(mpkm);
   await fout.writeAsString(rawJson);
@@ -24,7 +25,8 @@ writeGameData(gameFolder, readPath) async {
     var moves = await readMoves(gameFolder);
     var abilities = await readAbilities(gameFolder);
     var locations = await readLocations(gameFolder);
-    await writePokemonJson(readPath, pkm, moves, abilities, locations);
+    var types = await readTypes(gameFolder);
+    await writePokemonJson(readPath, pkm, moves, abilities, locations, types);
   } catch (ex) {
     print(ex);
     print("ayuda");

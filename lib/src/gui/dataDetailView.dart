@@ -76,10 +76,12 @@ class _DataDetailViewState extends State<DataDetailView> {
   }
 
   Widget _dataPage() {
+    print(pkm.getTypeChart());
     return ListView(
       children: _iconList() +
           _typesList() +
           _habilitiesList() +
+          _typesChartList() +
           _statsList() +
           _extraList(),
     );
@@ -149,12 +151,34 @@ class _DataDetailViewState extends State<DataDetailView> {
     ];
   }
 
+  List<Widget> _typesChartList() {
+    List rows = <TableRow>[];
+
+    pkm.getTypeChart().forEach((element) {
+      List w = <Widget>[];
+      element.forEach((t) {
+        w.add(Text(
+          "$t",
+          textScaleFactor: 0.8,
+        ));
+      });
+      rows.add(TableRow(children: w));
+    });
+    return [
+      _makeRoundedContainer(Text("Daño recibido")),
+      _makeRoundedContainer(Table(
+        border: TableBorder.all(color: Colors.white),
+        children: rows,
+      ))
+    ];
+  }
+
   List<Widget> _extraList() {
     return [
       _makeRoundedContainer(Text("Datos extra")),
       _makeRoundedContainer(Column(
         children: [
-          Text("Locaciones:\n ${pkm.locations}"),
+          Text("Apariciones:\n${pkm.locations}"),
           Text("Felicidad base: ${pkm.happines}"),
           Text("Compatibilidad: ${pkm.compability}"),
           Text("Peso: ${pkm.weight} Kg"),

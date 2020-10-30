@@ -6,6 +6,7 @@ class DataContainer {
   static Map<String, List> pkmMoves;
   static Map<String, List> pkmAbilities;
   static Map<String, List> pkmLocations;
+  static Map<String, List> pkmTypes;
   static int searching = 0;
   static bool hasSearched = false;
   static String predecesor;

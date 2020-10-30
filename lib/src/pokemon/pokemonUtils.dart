@@ -231,6 +231,37 @@ List getMoveList(String move) {
   return aux;
 }
 
+Map<String, List> getTypesMap(List<String> types) {
+  Map<String, List> typesMap = {};
+  types.removeWhere((element) => element == "");
+  for (var type in types) {
+    var t = getType(type);
+    typesMap[t[0]] = t;
+  }
+  return typesMap;
+}
+
+List<String> getType(String type) {
+  List<String> lines = LineSplitter.split(type).toList(),
+      t = List.generate(5, (index) => "");
+  lines.forEach((element) {
+    if (element.isNotEmpty) {
+      if (element.startsWith("Name=")) {
+        t[1] = element.split("=").last;
+      } else if (element.startsWith("Internal")) {
+        t[0] = element.split("=").last;
+      } else if (element.startsWith("Weaknesses")) {
+        t[2] = element.split("=").last;
+      } else if (element.startsWith("Resistances")) {
+        t[3] = element.split("=").last;
+      } else if (element.startsWith("Immunities")) {
+        t[4] = element.split("=").last;
+      }
+    }
+  });
+  return t;
+}
+
 Map<String, List<String>> getTMs(List<String> lines) {
   Map<String, List<String>> tms = {};
   bool move = false;

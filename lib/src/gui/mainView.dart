@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   List _lvItems = [];
-  String writePath, version = "DataMaker 0.7.1";
+  String writePath, version = "DataMaker 0.8.0";
   bool started = false;
   List<Future> _cardNames = [];
 

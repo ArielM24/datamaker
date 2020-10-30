@@ -134,7 +134,11 @@ class Pokemon {
       types.forEach((type) {
         imgs.add(Padding(
           padding: const EdgeInsets.all(5.0),
-          child: Image.asset("assets/${type.toLowerCase()}.png"),
+          child: Image.asset(
+            "assets/${type.toLowerCase()}.png",
+            width: 50,
+            height: 50,
+          ),
         ));
       });
     } else {
@@ -155,12 +159,40 @@ class Pokemon {
     return valid;
   }
 
-  List moveLevels(int pos) {
-    List levels = [];
-    moves.forEach((move) {
-      levels.add(move[pos]);
+  List getTypeChart() {
+    List chart = [
+      ["x0"],
+      ["x1/4"],
+      ["X1/2"],
+      ["x1"],
+      ["x2"],
+      ["x4"]
+    ];
+    List effective = [2, 0.5, 0];
+    List index = [0, 0.25, 0.5, 1, 2, 4];
+    DataContainer.pkmTypes.keys.forEach((type) {
+      double damage = 1.0;
+      this.types.forEach((t) {
+        for (int i = 2; i < DataContainer.pkmTypes[type].length; i++) {
+          if (DataContainer.pkmTypes[t][i].contains(type)) {
+            damage *= effective[i - 2];
+          }
+        }
+      });
+      chart[index.indexOf(damage)].add(type);
     });
-    return levels;
+    return _normalizeTypesChart(chart);
+  }
+
+  List _normalizeTypesChart(List chart) {
+    int max = 1;
+    chart.forEach((element) {
+      max = max < element.length ? element.length : max;
+    });
+    for (int i = 0; i < chart.length; i++) {
+      chart[i] = chart[i] + List.generate(max - chart[i].length, (index) => "");
+    }
+    return chart;
   }
 
   Uint8List getIconBytes() {

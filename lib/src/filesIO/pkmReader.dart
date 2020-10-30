@@ -58,6 +58,18 @@ readLocations(String folderPath) async {
   return DataContainer.pkmLocations;
 }
 
+readTypes(folderPath) async {
+  File f = File(folderPath + "/PBS/types.txt");
+  String str;
+  try {
+    str = await f.readAsString();
+  } catch (Exception) {
+    str = await f.readAsString(encoding: latin1);
+  }
+  DataContainer.pkmTypes = getTypesMap(str.split("["));
+  return DataContainer.pkmTypes;
+}
+
 Future<List<Pokemon>> readPokemonFile(String gameFolder) async {
   List<Pokemon> pkm = [];
   File f = File(gameFolder + "/PBS/pokemon.txt");
@@ -87,14 +99,19 @@ readPokemonData(String path) async {
   map["Pokemon"].forEach((element) {
     pkmData.add(Pokemon.fromJson(element));
   });
-  Map<String, List> pkmMoves = {}, pkmAbilities = {}, pkmLocations = {};
+  Map<String, List> pkmMoves = {},
+      pkmAbilities = {},
+      pkmLocations = {},
+      pkmTypes = {};
   pkmMoves = map["Moves"].cast<String, List>();
   pkmAbilities = map["Abilities"].cast<String, List>();
   pkmLocations = map["Locations"].cast<String, List>();
+  pkmTypes = map["Types"].cast<String, List>();
   DataContainer.pkmData = pkmData;
   DataContainer.pkmMoves = pkmMoves;
   DataContainer.pkmAbilities = pkmAbilities;
   DataContainer.pkmLocations = pkmLocations;
+  DataContainer.pkmTypes = pkmTypes;
 }
 
 Future<String> getGamePath() async {
