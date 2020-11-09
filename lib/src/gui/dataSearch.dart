@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:DataMaker/src/pokemon/dataContainer.dart';
 
 class DataSearch extends SearchDelegate {
-  List suggestions = [];
   int index;
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -100,7 +99,11 @@ class DataSearch extends SearchDelegate {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: results[i].getTypesImages())),
             onTap: () {
-              if (DataContainer.searching == 0) {
+              if (DataContainer.searching > 0) {
+                DataContainer.searching = 0;
+                DataContainer.predecesor = results[i].name;
+                DataContainer.hasSearched = true;
+              } else {
                 DataContainer.predecesor = results[i].name;
                 DataContainer.hasSearched = true;
               }

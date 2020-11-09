@@ -76,7 +76,6 @@ class _DataDetailViewState extends State<DataDetailView> {
   }
 
   Widget _dataPage() {
-    print(pkm.getTypeChart());
     return ListView(
       children: _iconList() +
           _typesList() +

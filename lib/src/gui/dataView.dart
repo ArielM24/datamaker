@@ -4,11 +4,12 @@ import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:DataMaker/src/pokemon/dataContainer.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'dart:io';
 
 class DataView extends StatefulWidget {
   final String path;
-
+  final ScrollController _scrollController = ScrollController();
   DataView(this.path, {Key key}) : super(key: key);
   @override
   createState() => _DataView(path);
@@ -68,8 +69,16 @@ class _DataView extends State<DataView> {
           ],
         ),
         body: Center(
-            child: Scrollbar(
+            child: DraggableScrollbar.arrows(
           controller: scrollControler,
+          labelTextBuilder: (double offset) {
+            num n = offset * (DataContainer.pkmData.length / 50000);
+            if (n < 1) n = 1;
+            return Text(
+              "${n.toInt()}",
+              style: TextStyle(color: Colors.black87),
+            );
+          },
           child: ListView.builder(
               controller: scrollControler,
               itemCount: index,

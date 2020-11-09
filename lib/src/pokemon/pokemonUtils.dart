@@ -164,7 +164,9 @@ Map<String, List> getAbilitiesMap(List<String> pkmAbilities) {
   Map<String, List> abilities = {};
   for (var a in pkmAbilities) {
     var ability = getAbilityList(a);
-    abilities[ability[0]] = ability;
+    if (ability.isNotEmpty) {
+      abilities[ability[0]] = ability;
+    }
   }
   return abilities;
 }
@@ -172,9 +174,13 @@ Map<String, List> getAbilitiesMap(List<String> pkmAbilities) {
 List getAbilityList(String ability) {
   var a = ability.split(",");
   List aux = [];
-  aux.add(a[1]);
-  aux.add(a[2]);
-  aux.add(a.sublist(3).join());
+  print(a.length);
+  if (a.length > 2) {
+    print("entro");
+    aux.add(a[1]);
+    aux.add(a[2]);
+    aux.add(a.sublist(3).join());
+  }
   return aux;
 }
 

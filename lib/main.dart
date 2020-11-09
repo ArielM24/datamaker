@@ -12,7 +12,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'DataMaker',
       theme: ThemeData.dark().copyWith(
-          textTheme: TextTheme(headline6: TextStyle(color: Colors.black87))),
+          textTheme: TextTheme(
+        headline6: TextStyle(color: Colors.white),
+      )),
       home: HomePage(),
     );
   }

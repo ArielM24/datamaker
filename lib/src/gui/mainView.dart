@@ -14,10 +14,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   List _lvItems = [];
-  String writePath, version = "DataMaker 0.8.0";
+  String writePath, version = "DataMaker 0.8.1";
   bool started = false;
   List<Future> _cardNames = [];
-
   @override
   void initState() {
     super.initState();
@@ -34,20 +33,22 @@ class _HomePage extends State<HomePage> {
             child: Image.asset("assets/pokemon-go.png")),
       ),
       body: Center(
-        child: ListView.builder(
-          itemCount: _lvItems.length,
-          itemBuilder: (context, int index) {
-            return FutureBuilder(
-              future: _cardNames[index],
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return _makeCard(index);
-                } else {
-                  return _loadingCard();
-                }
-              },
-            );
-          },
+        child: Scrollbar(
+          child: ListView.builder(
+            itemCount: _lvItems.length,
+            itemBuilder: (context, int index) {
+              return FutureBuilder(
+                future: _cardNames[index],
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return _makeCard(index);
+                  } else {
+                    return _loadingCard();
+                  }
+                },
+              );
+            },
+          ),
         ),
       ),
       floatingActionButton: Row(
@@ -56,13 +57,21 @@ class _HomePage extends State<HomePage> {
           FloatingActionButton(
               heroTag: "a",
               child: Icon(Icons.open_in_browser),
-              tooltip: "New",
+              tooltip: "New from game folder",
               onPressed: () => _createNew(context)),
           SizedBox(
             width: 10,
           ),
           FloatingActionButton(
               heroTag: "b",
+              child: Icon(Icons.open_in_browser),
+              tooltip: "New from file",
+              onPressed: () => _newFromFile(context)),
+          SizedBox(
+            width: 10,
+          ),
+          FloatingActionButton(
+              heroTag: "c",
               child: Icon(Icons.refresh),
               tooltip: "Refresh",
               onPressed: _refreshData),
@@ -73,11 +82,7 @@ class _HomePage extends State<HomePage> {
 
   Widget _loadingCard() {
     return Card(
-      child: Image.asset(
-        "assets/loading.gif",
-        height: 50,
-        width: 50,
-      ),
+      child: Center(child: CircularProgressIndicator()),
       elevation: 20,
       margin: const EdgeInsets.all(10),
       shadowColor: Colors.blue,
@@ -110,7 +115,12 @@ class _HomePage extends State<HomePage> {
                   onPressed: () {
                     _deleteCard(context, index);
                   },
-                  child: Text("Borrar"))
+                  child: Text("Borrar")),
+              FlatButton(
+                  onPressed: () {
+                    _copyCard(context, index);
+                  },
+                  child: Text("Copiar"))
             ],
           )
         ],
@@ -121,12 +131,22 @@ class _HomePage extends State<HomePage> {
     );
   }
 
+  _copyCard(BuildContext context, int index) async {
+    var path = await _pickDirectory(context, "Copy to", "Copy");
+    File copyTo = File(path + "/" + _getGameName(_lvItems[index]) + ".dmjson");
+    copyTo.create();
+    print(copyTo.path);
+    File data = File(_lvItems[index] + ".dmjson");
+    data.readAsString().then((value) => copyTo.writeAsString(value));
+    showAlertDialog(context: context, message: "Copied at: ${copyTo.path}");
+  }
+
   _deleteCard(BuildContext context, int index) async {
     var r =
         await showOkCancelAlertDialog(context: context, message: "¿Borrar?");
     if (r.index == 0) {
       setState(() {
-        File f = File(_lvItems[index]);
+        File f = File(_lvItems[index] + ".dmjson");
         f.delete();
         _lvItems.removeAt(index);
         _cardNames.removeAt(index);
@@ -140,14 +160,32 @@ class _HomePage extends State<HomePage> {
         textFields: [DialogTextField()],
         barrierDismissible: false);
     if (l != null) {
-      File f = File(_lvItems[index]);
+      writePath = await getDataPath();
+      File f = File(_lvItems[index] + ".dmjson");
       if (l[0].length > 2) {
-        f.renameSync(writePath + l[0]);
+        f.renameSync(writePath + l[0] + ".dmjson");
         setState(() {
           _lvItems[index] = writePath + l[0];
         });
       }
     }
+  }
+
+  _newFromFile(BuildContext context) async {
+    String filePath = await _pickFile(context);
+    print(filePath);
+    File file = File(filePath);
+
+    String name = _getGameName(filePath);
+    writePath = (await getDataPath()) + "/" + name;
+    File data = File(writePath);
+    data.create();
+    file.readAsString().then((value) => data.writeAsString(value));
+    _cardNames.add(_getCardName("name"));
+    setState(() {
+      _lvItems.add(data.path.substring(0, data.path.length - 7));
+    });
+    return true;
   }
 
   _createNew(BuildContext context) async {
@@ -158,7 +196,6 @@ class _HomePage extends State<HomePage> {
       await data.create();
     }
     String readPath = writePath + "${_getGameName(gameFolder)}";
-
     if (gameFolder != null) {
       _cardNames.add(_getCardName("name"));
       writeGameData(gameFolder, readPath);
@@ -168,6 +205,7 @@ class _HomePage extends State<HomePage> {
         _cardNames.last = fut;
       });
     }
+    return true;
   }
 
   String _getGameName(gameFolder) {
@@ -185,15 +223,32 @@ class _HomePage extends State<HomePage> {
     return name;
   }
 
-  Future<String> _pickDirectory(BuildContext context) async {
+  Future<String> _pickFile(BuildContext context) async {
+    var filePath;
+    filePath = await FilesystemPicker.open(
+        context: context,
+        rootDirectory: Directory(await getGamePath()),
+        fsType: FilesystemType.file,
+        allowedExtensions: [".dmjson"]);
+    return filePath;
+  }
+
+  Future<String> _pickDirectory(BuildContext context,
+      [String rootName = "Game folder",
+      String pickText = "select",
+      Directory directory]) async {
     var gameFolder;
-    Directory show = Directory(await getGamePath());
+    Directory show;
+    if (directory == null)
+      show = Directory(await getGamePath());
+    else
+      show = directory;
     gameFolder = await FilesystemPicker.open(
         context: context,
         rootDirectory: show,
         fsType: FilesystemType.folder,
-        rootName: "Game folder",
-        pickText: "Select");
+        rootName: rootName,
+        pickText: pickText);
     return gameFolder;
   }
 
@@ -208,7 +263,7 @@ class _HomePage extends State<HomePage> {
     l.forEach((element) {
       setState(() {
         if (!_lvItems.contains(element.path)) {
-          _lvItems.add(element.path);
+          _lvItems.add(element.path.substring(0, element.path.length - 7));
           _cardNames.add(_getCardName(element.path));
         }
       });
@@ -216,7 +271,7 @@ class _HomePage extends State<HomePage> {
   }
 
   _openCard(BuildContext context, String path) async {
-    await readPokemonData(path);
+    await readPokemonData(path + ".dmjson");
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => DataView(path)));
   }
