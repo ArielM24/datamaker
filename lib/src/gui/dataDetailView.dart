@@ -38,7 +38,7 @@ class _DataDetailViewState extends State<DataDetailView> {
           items: [
             BottomNavigationBarItem(
                 icon: Icon(Icons.leaderboard), label: "Data"),
-            BottomNavigationBarItem(icon: Icon(Icons.upgrade), label: "Evol"),
+            BottomNavigationBarItem(icon: Icon(Icons.upgrade), label: "Evols"),
             BottomNavigationBarItem(
                 icon: Icon(Icons.data_usage), label: "Moves"),
           ],
@@ -88,7 +88,7 @@ class _DataDetailViewState extends State<DataDetailView> {
 
   List<Widget> _iconList() {
     return [
-      _makeRoundedContainer(Text("#Número ${pkm.number}")),
+      _makeRoundedContainer(Text("#Number ${pkm.number}")),
       _makeRoundedContainer(SizedBox(
           width: 128,
           child: AspectRatio(
@@ -102,14 +102,14 @@ class _DataDetailViewState extends State<DataDetailView> {
                   ),
                 ),
               )))),
-      _makeRoundedContainer(Text("Nombre interno: ${pkm.internalName}"))
+      _makeRoundedContainer(Text("Internal name: ${pkm.internalName}"))
     ];
   }
 
   List<Widget> _typesList() {
     return [
       _makeRoundedContainer(Column(
-        children: <Widget>[Text("Tipo(s):")] +
+        children: <Widget>[Text("Type(s):")] +
             _makeListString(pkm.types) +
             <Widget>[
               Row(
@@ -123,7 +123,7 @@ class _DataDetailViewState extends State<DataDetailView> {
   List<Widget> _habilitiesList() {
     return [
       _makeRoundedContainer(Column(children: <Widget>[
-        Text("Habilidades:"),
+        Text("Abilities:"),
         _makeHabilitiesList(pkm.abilities + [pkm.hiddenAbi])
       ])),
     ];
@@ -131,7 +131,7 @@ class _DataDetailViewState extends State<DataDetailView> {
 
   List<Widget> _statsList() {
     return [
-      _makeRoundedContainer(Text("Stats base")),
+      _makeRoundedContainer(Text("Base stats")),
       _makeRoundedContainer(Table(
         border: TableBorder.all(color: Colors.white),
         children: [
@@ -164,7 +164,7 @@ class _DataDetailViewState extends State<DataDetailView> {
       rows.add(TableRow(children: w));
     });
     return [
-      _makeRoundedContainer(Text("Daño recibido")),
+      _makeRoundedContainer(Text("Damage taken:")),
       _makeRoundedContainer(Table(
         border: TableBorder.all(color: Colors.white),
         children: rows,
@@ -174,15 +174,15 @@ class _DataDetailViewState extends State<DataDetailView> {
 
   List<Widget> _extraList() {
     return [
-      _makeRoundedContainer(Text("Datos extra")),
+      _makeRoundedContainer(Text("Other data")),
       _makeRoundedContainer(Column(
         children: [
-          Text("Apariciones:\n${pkm.locations}"),
-          Text("Felicidad base: ${pkm.happines}"),
-          Text("Compatibilidad: ${pkm.compability}"),
-          Text("Peso: ${pkm.weight} Kg"),
-          Text("Pasos para eclosionar: ${pkm.stepsToHatch}"),
-          Text("Evs que suelta:"),
+          Text("Encounters:\n${pkm.locations}"),
+          Text("Base happyness: ${pkm.happines}"),
+          Text("Compatibility: ${pkm.compability}"),
+          Text("Weight: ${pkm.weight} Kg"),
+          Text("Steps to hatch: ${pkm.stepsToHatch}"),
+          Text("Evs droped:"),
           Table(
             border: TableBorder.all(color: Colors.white),
             children: [
@@ -206,7 +206,7 @@ class _DataDetailViewState extends State<DataDetailView> {
   Widget _evolPage() {
     return ListView(
       children: [
-        _makeRoundedContainer(Text("#Número ${pkm.number}")),
+        _makeRoundedContainer(Text("#Number ${pkm.number}")),
         _makeRoundedContainer(SizedBox(
             width: 128,
             child: AspectRatio(
@@ -220,7 +220,7 @@ class _DataDetailViewState extends State<DataDetailView> {
                     ),
                   ),
                 )))),
-        _makeRoundedContainer(Text("Evoluciones")),
+        _makeRoundedContainer(Text("Evolutios")),
         Column(
           children: _makeEvolutionsList(),
         ),
@@ -231,7 +231,7 @@ class _DataDetailViewState extends State<DataDetailView> {
   Widget _movesPage() {
     return ListView(
       children: [
-        _makeRoundedContainer(Text("#Número ${pkm.number}")),
+        _makeRoundedContainer(Text("#Number ${pkm.number}")),
         _makeRoundedContainer(SizedBox(
             width: 128,
             child: AspectRatio(
@@ -247,7 +247,7 @@ class _DataDetailViewState extends State<DataDetailView> {
                 )))),
         _makeRoundedContainer(Column(
           children: [
-            Text("Movimientos:"),
+            Text("Moves:"),
             Table(
                 columnWidths: {
                   0: FlexColumnWidth(3),
@@ -267,7 +267,7 @@ class _DataDetailViewState extends State<DataDetailView> {
               border: TableBorder.all(color: Colors.white),
               children: _movesRows(pkm.tmMoves.map((e) => [e]).toList()),
             ),
-            Text("Huevo:"),
+            Text("Bredding:"),
             Table(
                 columnWidths: {
                   0: FlexColumnWidth(3),
@@ -286,9 +286,9 @@ class _DataDetailViewState extends State<DataDetailView> {
     if (moves.isNotEmpty) {
       if (moves[0].length == 2) {
         rows.add(
-            TableRow(children: [Text("Info"), Text("Nivel"), Text("Nombre")]));
+            TableRow(children: [Text("Info"), Text("Level"), Text("Name")]));
       } else if (moves[0].length == 1) {
-        rows.add(TableRow(children: [Text("Info"), Text("Nombre")]));
+        rows.add(TableRow(children: [Text("Info"), Text("Name")]));
       }
     }
     moves.forEach((move) {
@@ -319,13 +319,13 @@ class _DataDetailViewState extends State<DataDetailView> {
 
   String _moveStr(List move) {
     return "${move[1]}\n"
-        "Potencia: ${move[2] == '0' ? '-' : move[2]}\n"
-        "Tipo: ${move[3]}\n"
-        "Categoría: ${move[4]}\n"
-        "Presición: ${move[5] == '0' ? '-' : move[5]}\n"
+        "Power: ${move[2] == '0' ? '-' : move[2]}\n"
+        "Type: ${move[3]}\n"
+        "Category: ${move[4]}\n"
+        "Precision: ${move[5] == '0' ? '-' : move[5]}\n"
         "PPs: ${move[6]}\n"
-        "Probabilidad de efecto: ${move[7] == '0' ? '-' : move[7]}\n"
-        "Descripción: ${move[8]}\n";
+        "Effect probability: ${move[7] == '0' ? '-' : move[7]}\n"
+        "Description: ${move[8]}\n";
   }
 
   List<Widget> _makeListString(List str) {
@@ -368,7 +368,7 @@ class _DataDetailViewState extends State<DataDetailView> {
       ]));
     });
     rows.insert(
-        rows.length - 1, TableRow(children: [Center(child: Text("Oculta:"))]));
+        rows.length - 1, TableRow(children: [Center(child: Text("Hidden:"))]));
     return Table(
       border: TableBorder.all(color: Colors.white),
       children: rows,
@@ -377,7 +377,7 @@ class _DataDetailViewState extends State<DataDetailView> {
 
   String abilityStr(List ability) {
     return "${ability[1]}\n"
-        "Descripción: ${ability[2]}";
+        "Description: ${ability[2]}";
   }
 
   List<Widget> _makeEvolutionsList() {

@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   List _lvItems = [];
-  String writePath, version = "DataMaker 0.8.1";
+  String writePath, version = "DataMaker 0.8.4";
   bool started = false;
   List<Future> _cardNames = [];
   @override
@@ -110,17 +110,17 @@ class _HomePage extends State<HomePage> {
                   onPressed: () {
                     _renameCard(context, index);
                   },
-                  child: Text("Renombrar")),
+                  child: Text("Rename")),
               FlatButton(
                   onPressed: () {
                     _deleteCard(context, index);
                   },
-                  child: Text("Borrar")),
+                  child: Text("Delete")),
               FlatButton(
                   onPressed: () {
                     _copyCard(context, index);
                   },
-                  child: Text("Copiar"))
+                  child: Text("Copy file"))
             ],
           )
         ],
@@ -142,8 +142,7 @@ class _HomePage extends State<HomePage> {
   }
 
   _deleteCard(BuildContext context, int index) async {
-    var r =
-        await showOkCancelAlertDialog(context: context, message: "¿Borrar?");
+    var r = await showOkCancelAlertDialog(context: context, message: "Delete?");
     if (r.index == 0) {
       setState(() {
         File f = File(_lvItems[index] + ".dmjson");
@@ -198,7 +197,8 @@ class _HomePage extends State<HomePage> {
     String readPath = writePath + "${_getGameName(gameFolder)}";
     if (gameFolder != null) {
       _cardNames.add(_getCardName("name"));
-      writeGameData(gameFolder, readPath);
+      var res = await writeGameData(gameFolder, readPath);
+      _showWritingError(context, res);
       setState(() {
         _lvItems.add(readPath);
         var fut = _getCardName(readPath);
@@ -206,6 +206,34 @@ class _HomePage extends State<HomePage> {
       });
     }
     return true;
+  }
+
+  _showWritingError(context, res) {
+    switch (res) {
+      case 1:
+        showAlertDialog(
+            context: context, message: "Error while reading pokemon file");
+        break;
+      case 2:
+        showAlertDialog(
+            context: context, message: "Error while reading moves file");
+        break;
+      case 3:
+        showAlertDialog(
+            context: context, message: "Error while reading abilities file");
+        break;
+      case 4:
+        showAlertDialog(
+            context: context, message: "Error while reading encounters file");
+        break;
+      case 5:
+        showAlertDialog(
+            context: context, message: "Error while reading types file");
+        break;
+      case 6:
+        showAlertDialog(context: context, message: "Error while writing file");
+        break;
+    }
   }
 
   String _getGameName(gameFolder) {
@@ -234,8 +262,8 @@ class _HomePage extends State<HomePage> {
   }
 
   Future<String> _pickDirectory(BuildContext context,
-      [String rootName = "Game folder",
-      String pickText = "select",
+      [String rootName = "Downloads",
+      String pickText = "select game folder",
       Directory directory]) async {
     var gameFolder;
     Directory show;
@@ -271,8 +299,16 @@ class _HomePage extends State<HomePage> {
   }
 
   _openCard(BuildContext context, String path) async {
-    await readPokemonData(path + ".dmjson");
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => DataView(path)));
+    try {
+      await readPokemonData(path + ".dmjson");
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => DataView(path)));
+    } catch (Exception) {
+      showAlertDialog(
+          context: context,
+          message:
+              "Error while opening file\nRefresh, delete the file or \nrestart the app");
+      _refreshData();
+    }
   }
 }

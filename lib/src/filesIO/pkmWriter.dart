@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:DataMaker/src/filesIO/pkmReader.dart';
+import 'package:adaptive_dialog/adaptive_dialog.dart';
 
 Future writePokemonJson(String path, List<Pokemon> pkm, Map<String, List> moves,
     abilities, locations, types) async {
@@ -20,23 +22,40 @@ Future writePokemonJson(String path, List<Pokemon> pkm, Map<String, List> moves,
 }
 
 writeGameData(gameFolder, readPath) async {
+  var pkm, moves, abilities, locations, types;
   try {
-    print("1");
-    var pkm = await readPokemonFile(gameFolder);
-    print("2");
-    var moves = await readMoves(gameFolder);
-    print("3");
-    var abilities = await readAbilities(gameFolder);
-    print("4");
-    var locations = await readLocations(gameFolder);
-    print("5");
-    var types = await readTypes(gameFolder);
-    print("6");
+    pkm = await readPokemonFile(gameFolder);
+  } catch (Exception) {
+    return 1;
+  }
+  try {
+    moves = await readMoves(gameFolder);
+  } catch (Exception) {
+    return 2;
+  }
+  try {
+    abilities = await readAbilities(gameFolder);
+  } catch (Exception) {
+    return 3;
+  }
+  try {
+    locations = await readLocations(gameFolder);
+  } catch (Exception) {
+    return 4;
+  }
+  try {
+    types = await readTypes(gameFolder);
+  } catch (Exception) {
+    return 5;
+  }
+
+  try {
     await writePokemonJson(readPath, pkm, moves, abilities, locations, types);
   } catch (ex) {
     print(ex);
-    print("ayuda");
+    return 6;
   }
+  return 0;
 }
 
 Future<String> getDataPath() async {

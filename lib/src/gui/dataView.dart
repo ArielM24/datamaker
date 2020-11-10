@@ -9,7 +9,6 @@ import 'dart:io';
 
 class DataView extends StatefulWidget {
   final String path;
-  final ScrollController _scrollController = ScrollController();
   DataView(this.path, {Key key}) : super(key: key);
   @override
   createState() => _DataView(path);
@@ -94,18 +93,18 @@ class _DataView extends State<DataView> {
         child: ListView(
       children: [
         DrawerHeader(
-          child: Center(child: Text("$name\nBuscar estadísticas")),
+          child: Center(child: Text("$name\nSearch stats")),
         ),
         ListTile(
           title: RaisedButton(
               color: Colors.blue,
-              child: Text("Número"),
+              child: Text("Number"),
               onPressed: _statSearch),
         ),
         ListTile(
           title: RaisedButton(
               color: Colors.blue,
-              child: Text("Rango"),
+              child: Text("Range"),
               onPressed: _rangeSearch),
         ),
       ],
@@ -116,7 +115,7 @@ class _DataView extends State<DataView> {
     var stat = await showTextInputDialog(
         context: context,
         textFields: [DialogTextField()],
-        message: "Estadística total");
+        message: "Total stats");
     if (stat != null) {
       _showResults(stat);
     }
@@ -126,7 +125,7 @@ class _DataView extends State<DataView> {
     var stat = await showTextInputDialog(
         context: context,
         textFields: [DialogTextField(), DialogTextField(), DialogTextField()],
-        message: "Estadística total, rango (inferior,superior)");
+        message: "Total stats, range (-total, +total)");
     if (stat != null) {
       _showResults(stat);
     }
@@ -148,8 +147,8 @@ class _DataView extends State<DataView> {
     });
     showConfirmationDialog(
       context: context,
-      message: "${res.length} Resultado(s)",
-      title: "Resultado(s)",
+      message: "${res.length} Results",
+      title: "Results",
       actions: acts,
     );
   }

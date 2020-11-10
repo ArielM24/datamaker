@@ -8,6 +8,16 @@ import 'package:DataMaker/src/pokemon/dataContainer.dart';
 import 'package:DataMaker/src/pokemon/pokemon.dart';
 import 'package:DataMaker/src/pokemon/pokemonUtils.dart';
 
+Future<String> readStringEncoding(File f) async {
+  String str;
+  try {
+    str = await f.readAsString();
+  } catch (Exception) {
+    str = await f.readAsString(encoding: latin1);
+  }
+  return str;
+}
+
 Future<Uint8List> getIconbytes(String gameFolder, int number) async {
   File iconFile = File(gameFolder +
       "/Graphics/Icons/icon${number.toString().padLeft(3, '0')}.png");
@@ -25,21 +35,23 @@ Future<Uint8List> getIconbytes(String gameFolder, int number) async {
 
 readMoves(String folderPath) async {
   File f = File(folderPath + "/PBS/moves.txt");
-  List lines = LineSplitter.split(await f.readAsString()).toList();
+  String str = await readStringEncoding(f);
+  List lines = LineSplitter.split(str).toList()
+    ..removeWhere((element) => element.replaceAll("\n", "").isEmpty);
   DataContainer.pkmMoves = getMovesMap(lines);
   return DataContainer.pkmMoves;
 }
 
 readTms(String folderPath, List<Pokemon> pkm) async {
   File f = File(folderPath + "/PBS/tm.txt");
-  String str = await f.readAsString();
+  String str = await readStringEncoding(f);
   List lines = LineSplitter.split(str).toList();
   return addTms(getTMs(lines), pkm);
 }
 
 readAbilities(String folderPath) async {
   File f = File(folderPath + "/PBS/abilities.txt");
-  String str = await f.readAsString();
+  String str = await readStringEncoding(f);
   List lines = LineSplitter.split(str).toList();
   DataContainer.pkmAbilities = getAbilitiesMap(lines);
   return DataContainer.pkmAbilities;
@@ -47,12 +59,7 @@ readAbilities(String folderPath) async {
 
 readLocations(String folderPath) async {
   File f = File(folderPath + "/PBS/encounters.txt");
-  String str;
-  try {
-    str = await f.readAsString();
-  } catch (Exception) {
-    str = await f.readAsString(encoding: latin1);
-  }
+  String str = await readStringEncoding(f);
   DataContainer.pkmLocations =
       getLocationsMap(str.split(RegExp(r"(#+)")).sublist(1));
   return DataContainer.pkmLocations;
@@ -60,12 +67,7 @@ readLocations(String folderPath) async {
 
 readTypes(folderPath) async {
   File f = File(folderPath + "/PBS/types.txt");
-  String str;
-  try {
-    str = await f.readAsString();
-  } catch (Exception) {
-    str = await f.readAsString(encoding: latin1);
-  }
+  String str = await readStringEncoding(f);
   DataContainer.pkmTypes = getTypesMap(str.split("["));
   return DataContainer.pkmTypes;
 }
@@ -73,7 +75,7 @@ readTypes(folderPath) async {
 Future<List<Pokemon>> readPokemonFile(String gameFolder) async {
   List<Pokemon> pkm = [];
   File f = File(gameFolder + "/PBS/pokemon.txt");
-  var str = await f.readAsString();
+  var str = await readStringEncoding(f);
   List l = str.split("[");
   l.removeAt(0);
   l.forEach((element) {
