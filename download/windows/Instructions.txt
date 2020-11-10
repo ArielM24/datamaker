@@ -1,0 +1,2 @@
+The .exe file needs to be in the same directory that the .dll file and the data folder.
+Make a direct access.
