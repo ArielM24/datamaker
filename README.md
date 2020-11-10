@@ -1,4 +1,5 @@
 # DataMaker
+# To download go to the "downloads" folder and select the file that you want
 
 An app for get information from Pokemon fan games made in RPG Maker.
 
@@ -103,6 +104,7 @@ The app will try to get the icons of the custom pokemon but if it
 can't get them just will show an interrogation icon
 
 ![unknow](/images/unknow.png)
+
 
 
 
