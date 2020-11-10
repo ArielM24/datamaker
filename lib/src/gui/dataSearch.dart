@@ -1,6 +1,6 @@
-import 'package:DataMaker/src/gui/dataDetailView.dart';
+import 'package:datamaker/src/gui/dataDetailView.dart';
 import 'package:flutter/material.dart';
-import 'package:DataMaker/src/pokemon/dataContainer.dart';
+import 'package:datamaker/src/pokemon/dataContainer.dart';
 
 class DataSearch extends SearchDelegate {
   int index;

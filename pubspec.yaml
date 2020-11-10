@@ -1,4 +1,4 @@
-name: DataMaker
+name: datamaker
 description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 0.8.4
+version: 0.8.5
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -32,7 +32,7 @@ dependencies:
   permission_handler: ^5.0.1+1
   path_provider_windows: ^0.0.4+1
   draggable_scrollbar: ^0.0.4
-
+  flutter_launcher_icons: ^0.8.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -84,3 +84,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+flutter_icons:    
+ android: "launcher_icon"    
+ ios: true    
+ image_path: "assets/pokemon-go.png"  

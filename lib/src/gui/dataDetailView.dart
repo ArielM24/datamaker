@@ -1,7 +1,7 @@
 import 'package:adaptive_dialog/adaptive_dialog.dart';
-import 'package:DataMaker/src/pokemon/pokemon.dart';
+import 'package:datamaker/src/pokemon/pokemon.dart';
 import 'package:flutter/material.dart';
-import 'package:DataMaker/src/pokemon/dataContainer.dart';
+import 'package:datamaker/src/pokemon/dataContainer.dart';
 
 class DataDetailView extends StatefulWidget {
   DataDetailView({Key key}) : super(key: key);
@@ -24,7 +24,7 @@ class _DataDetailViewState extends State<DataDetailView> {
       onWillPop: () => _onBackPressed(context),
       child: Scaffold(
         appBar: AppBar(
-            title: Text("${DataContainer.selection().name}"),
+            title: Text("${pkm.name}"),
             backgroundColor: DataContainer.selection().getColors()[0],
             centerTitle: true,
             leading: IconButton(

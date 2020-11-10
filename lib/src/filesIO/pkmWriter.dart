@@ -1,10 +1,8 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:flutter/widgets.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:DataMaker/src/pokemon/pokemon.dart';
-import 'package:DataMaker/src/filesIO/pkmReader.dart';
-import 'package:adaptive_dialog/adaptive_dialog.dart';
+import 'package:datamaker/src/pokemon/pokemon.dart';
+import 'package:datamaker/src/filesIO/pkmReader.dart';
 
 Future writePokemonJson(String path, List<Pokemon> pkm, Map<String, List> moves,
     abilities, locations, types) async {

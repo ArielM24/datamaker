@@ -4,9 +4,9 @@ import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:android_path_provider/android_path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:DataMaker/src/pokemon/dataContainer.dart';
-import 'package:DataMaker/src/pokemon/pokemon.dart';
-import 'package:DataMaker/src/pokemon/pokemonUtils.dart';
+import 'package:datamaker/src/pokemon/dataContainer.dart';
+import 'package:datamaker/src/pokemon/pokemon.dart';
+import 'package:datamaker/src/pokemon/pokemonUtils.dart';
 
 Future<String> readStringEncoding(File f) async {
   String str;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:DataMaker/src/gui/mainView.dart';
+import 'package:datamaker/src/gui/mainView.dart';
 
 void main() {
   runApp(MyApp());

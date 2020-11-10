@@ -1,8 +1,8 @@
-import 'package:DataMaker/src/gui/dataDetailView.dart';
-import 'package:DataMaker/src/gui/dataSearch.dart';
+import 'package:datamaker/src/gui/dataDetailView.dart';
+import 'package:datamaker/src/gui/dataSearch.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:DataMaker/src/pokemon/dataContainer.dart';
+import 'package:datamaker/src/pokemon/dataContainer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:draggable_scrollbar/draggable_scrollbar.dart';
 import 'dart:io';

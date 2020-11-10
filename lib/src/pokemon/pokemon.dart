@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:DataMaker/src/pokemon/dataContainer.dart';
+import 'package:datamaker/src/pokemon/dataContainer.dart';
 
 class Pokemon {
   int number, happines, stepsToHatch;

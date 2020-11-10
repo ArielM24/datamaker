@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:DataMaker/src/pokemon/pokemon.dart';
+import 'package:datamaker/src/pokemon/pokemon.dart';
 
 List<int> getNumbers(String str) {
   RegExp intRegexp = RegExp(r"\s*(\d+)\s*", multiLine: true);

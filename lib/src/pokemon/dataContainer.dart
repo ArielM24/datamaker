@@ -1,4 +1,4 @@
-import 'package:DataMaker/src/pokemon/pokemon.dart';
+import 'package:datamaker/src/pokemon/pokemon.dart';
 
 class DataContainer {
   static List<Pokemon> pkmData;

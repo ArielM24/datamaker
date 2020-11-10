@@ -33,11 +33,14 @@
 
 # Web related
 lib/generated_plugin_registrant.dart
+
+
 /linux/
 /windows/
 /test/
 /android/
 /ios/
+snapcraft.yaml
 # Symbolication related
 app.*.symbols
 

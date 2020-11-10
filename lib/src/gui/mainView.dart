@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:DataMaker/src/gui/dataView.dart';
+import 'package:datamaker/src/gui/dataView.dart';
 import 'package:adaptive_dialog/adaptive_dialog.dart';
 import 'package:filesystem_picker/filesystem_picker.dart';
-import 'package:DataMaker/src/filesIO/pkmReader.dart';
-import 'package:DataMaker/src/filesIO/pkmWriter.dart';
+import 'package:datamaker/src/filesIO/pkmReader.dart';
+import 'package:datamaker/src/filesIO/pkmWriter.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -14,7 +14,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePage extends State<HomePage> {
   List _lvItems = [];
-  String writePath, version = "DataMaker 0.8.4";
+  String writePath, version = "datamaker 0.8.5";
   bool started = false;
   List<Future> _cardNames = [];
   @override
