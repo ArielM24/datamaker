@@ -36,7 +36,8 @@ lib/generated_plugin_registrant.dart
 /linux/
 /windows/
 /test/
-
+/android/
+/ios/
 # Symbolication related
 app.*.symbols
 

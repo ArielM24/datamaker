@@ -267,7 +267,7 @@ class _DataDetailViewState extends State<DataDetailView> {
               border: TableBorder.all(color: Colors.white),
               children: _movesRows(pkm.tmMoves.map((e) => [e]).toList()),
             ),
-            Text("Bredding:"),
+            Text("Breeding:"),
             Table(
                 columnWidths: {
                   0: FlexColumnWidth(3),
